@@ -99,7 +99,8 @@ public class JavaGameClientMain extends JFrame {
 			String username = txtUserName.getText().trim();
 			String ip_addr = txtIpAddress.getText().trim();
 			String port_no = txtPortNumber.getText().trim();
-			JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
+			//JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
+			JavaGameClientLobby lobby = new JavaGameClientLobby(username, ip_addr, port_no);
 			setVisible(false);
 		}
 	}
