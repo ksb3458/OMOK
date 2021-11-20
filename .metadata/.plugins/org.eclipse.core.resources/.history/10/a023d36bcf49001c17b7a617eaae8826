@@ -251,7 +251,6 @@ public class JavaGameClientView extends JFrame {
 					if (obcm instanceof ChatMsg) {
 						cm = (ChatMsg) obcm;
 						msg = String.format("[%s]\n%s", cm.UserName, cm.data);
-						//msg = String.format("\n%s", cm.data);
 					} else
 						continue;
 					switch (cm.code) {
@@ -265,10 +264,8 @@ public class JavaGameClientView extends JFrame {
 					case "300": // chat message
 						if (cm.UserName.equals(UserName))
 							AppendTextR("[" + cm.UserName + "]");
-							//AppendTextR(" ");
 						else
 							AppendText("[" + cm.UserName + "]");
-							//AppendText(" ");
 						AppendImage(cm.img);
 						break;
 					}
@@ -312,28 +309,29 @@ public class JavaGameClientView extends JFrame {
 	class ImageSendAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			// 액션 이벤트가 sendBtn일때 또는 textField 에세 Enter key 치면
+			/*if (e.getSource() == imgBtn) {
+				frame = new Frame("이미지첨부");
+				fd = new FileDialog(frame, "이미지 선택", FileDialog.LOAD);
+				// frame.setVisible(true);
+				// fd.setDirectory(".\\");
+				fd.setVisible(true);
+				// System.out.println(fd.getDirectory() + fd.getFile());
+				if (fd.getDirectory().length() > 0 && fd.getFile().length() > 0) {
+					ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
+					ImageIcon img = new ImageIcon(fd.getDirectory() + fd.getFile());
+					obcm.img = img;
+					SendObject(obcm);
+				}
+			}*/
 			if(e.getSource() == faceBtn1) {
 				ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
-				ImageIcon img = new ImageIcon("icon/fun.png");
+				ImageIcon img = new ImageIcon("icon/angry.png");
 				obcm.img = img;
 				SendObject(obcm);
 			}
 			
 			else if(e.getSource() == faceBtn2) {
-				ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
-				ImageIcon img = new ImageIcon("icon/cry.png");
-				obcm.img = img;
-				SendObject(obcm);
-			}
-			
-			else if(e.getSource() == faceBtn3) {
-				ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
-				ImageIcon img = new ImageIcon("icon/sp.png");
-				obcm.img = img;
-				SendObject(obcm);
-			}
-			
-			else if(e.getSource() == faceBtn4) {
 				ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
 				ImageIcon img = new ImageIcon("icon/angry.png");
 				obcm.img = img;

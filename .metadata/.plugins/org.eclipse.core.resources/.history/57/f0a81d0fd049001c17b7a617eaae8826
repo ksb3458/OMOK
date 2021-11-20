@@ -250,8 +250,7 @@ public class JavaGameClientView extends JFrame {
 						break;
 					if (obcm instanceof ChatMsg) {
 						cm = (ChatMsg) obcm;
-						msg = String.format("[%s]\n%s", cm.UserName, cm.data);
-						//msg = String.format("\n%s", cm.data);
+						msg = String.format("\n%s", cm.data);
 					} else
 						continue;
 					switch (cm.code) {
@@ -264,11 +263,9 @@ public class JavaGameClientView extends JFrame {
 						
 					case "300": // chat message
 						if (cm.UserName.equals(UserName))
-							AppendTextR("[" + cm.UserName + "]");
-							//AppendTextR(" ");
+							AppendTextR(" ");
 						else
-							AppendText("[" + cm.UserName + "]");
-							//AppendText(" ");
+							AppendText(" ");
 						AppendImage(cm.img);
 						break;
 					}
