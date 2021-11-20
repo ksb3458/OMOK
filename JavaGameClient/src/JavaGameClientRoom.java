@@ -54,9 +54,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
 import javax.swing.JLayeredPane;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JRadioButton;
@@ -69,6 +72,8 @@ public class JavaGameClientRoom extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private String UserName;
+	private String Ip_Addr;
+	private String Port_No;
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 	private Socket socket; // 연결소켓
 	private InputStream is;
@@ -89,22 +94,25 @@ public class JavaGameClientRoom extends JFrame {
 	private JLabel roomLabel;
 	private JButton cancelBtn;
 	private JLabel nameLabel;
-	private JTextField textField;
+	private JTextField roomName;
 	private JLabel secretLabel;
 	private JPanel secretPanel;
+	private JRadioButton secretYesBtn;
 	private JRadioButton secretNoBtn;
 	private JLabel lookLabel;
 	private JPanel lookPanel;
 	private JRadioButton lookNoBtn;
 	private JRadioButton lookYesBtn;
 	private JButton createRoom;
+	private JTextField pwText;
+	private JLabel pwLabel;
 	
 	
 	/**
 	 * Create the frame.
 	 * @throws BadLocationException 
 	 */
-	public JavaGameClientRoom(String username)  {
+	public JavaGameClientRoom(String username, String ip_addr, String port_no)  {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 375, 426);
@@ -132,26 +140,28 @@ public class JavaGameClientRoom extends JFrame {
 		
 		nameLabel = new JLabel("방 제 목");
 		nameLabel.setFont(new Font("굴림", Font.PLAIN, 15));
-		nameLabel.setBounds(30, 86, 67, 21);
+		nameLabel.setBounds(30, 83, 67, 21);
 		panel.add(nameLabel);
 		
-		textField = new JTextField();
-		textField.setBounds(111, 77, 174, 30);
-		panel.add(textField);
-		textField.setColumns(10);
+		roomName = new JTextField();
+		roomName.setText(username);
+		roomName.setBounds(111, 76, 174, 30);
+		panel.add(roomName);
+		roomName.setColumns(10);
 		
 		secretLabel = new JLabel("비 밀 방");
 		secretLabel.setFont(new Font("굴림", Font.PLAIN, 15));
-		secretLabel.setBounds(30, 161, 67, 21);
+		secretLabel.setBounds(30, 141, 67, 21);
 		panel.add(secretLabel);
 		
 		secretPanel = new JPanel();
-		secretPanel.setBounds(111, 139, 213, 49);
+		secretPanel.setBounds(111, 118, 213, 49);
 		panel.add(secretPanel);
 		
-		JRadioButton secretYesBtn = new JRadioButton("예");
-		
+		secretYesBtn = new JRadioButton("예");		
 		secretNoBtn = new JRadioButton("아니오");
+		secretNoBtn.setSelected(true);
+		
 		GroupLayout gl_secretPanel = new GroupLayout(secretPanel);
 		gl_secretPanel.setHorizontalGroup(
 			gl_secretPanel.createParallelGroup(Alignment.LEADING)
@@ -174,16 +184,17 @@ public class JavaGameClientRoom extends JFrame {
 		
 		lookLabel = new JLabel("관전가능");
 		lookLabel.setFont(new Font("굴림", Font.PLAIN, 15));
-		lookLabel.setBounds(30, 236, 67, 21);
+		lookLabel.setBounds(30, 241, 67, 21);
 		panel.add(lookLabel);
 		
 		lookPanel = new JPanel();
-		lookPanel.setBounds(111, 213, 215, 49);
+		lookPanel.setBounds(111, 218, 215, 49);
 		panel.add(lookPanel);
 		
 		lookNoBtn = new JRadioButton("아니오");
-		
 		lookYesBtn = new JRadioButton("예");
+		lookYesBtn.setSelected(true);
+		
 		GroupLayout gl_lookPanel = new GroupLayout(lookPanel);
 		gl_lookPanel.setHorizontalGroup(
 			gl_lookPanel.createParallelGroup(Alignment.LEADING)
@@ -208,10 +219,28 @@ public class JavaGameClientRoom extends JFrame {
 		
 		createRoom = new JButton("만  들  기");
 		createRoom.setFont(new Font("굴림", Font.PLAIN, 17));
-		createRoom.setBounds(19, 300, 305, 37);
+		createRoom.setBounds(19, 305, 305, 37);
 		panel.add(createRoom);
 		setVisible(true);
-
+		
+		ButtonGroup  secretGroup = new ButtonGroup();
+		secretGroup.add(secretYesBtn);
+		secretGroup.add(secretNoBtn);
+		
+		ButtonGroup  lookGroup = new ButtonGroup();
+		lookGroup.add(lookYesBtn);
+		lookGroup.add(lookNoBtn);
+		
+		pwLabel = new JLabel("비밀번호");
+		pwLabel.setFont(new Font("굴림", Font.PLAIN, 15));
+		pwLabel.setBounds(30, 177, 67, 21);	
+		
+		pwText = new JTextField();
+		pwText.setColumns(10);
+		pwText.setBounds(111, 172, 174, 30);
+		
+		Ip_Addr = ip_addr;
+		Port_No = port_no;
 		UserName = username;
 
 		/*try {
@@ -236,7 +265,53 @@ public class JavaGameClientRoom extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
-
+		
+		goLobby action = new goLobby();
+		cancelBtn.addActionListener(action);
+		
+		selectSecret action2 = new selectSecret();
+		secretYesBtn.addActionListener(action2);
+		secretNoBtn.addActionListener(action2);
+		
+		createRoom action3 = new createRoom();
+		roomBtn.addActionListener(action3);
+	}
+	
+	class goLobby implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
+			JavaGameClientLobby lobby = new JavaGameClientLobby(UserName, Ip_Addr, Port_No);
+			setVisible(false);
+		}
+	}
+	
+	class selectSecret implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(secretYesBtn.isSelected()) {
+				panel.add(pwLabel);
+				panel.add(pwText);
+				panel.repaint();
+			}
+			
+			else {
+				panel.remove(pwLabel);
+				panel.remove(pwText);
+				panel.repaint();
+			}
+		}
+	}
+	
+	class createRoom implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
+			JavaGameClientLobby lobby = new JavaGameClientLobby(UserName, Ip_Addr, Port_No);
+			setVisible(false);
+		}
 	}
 	
 	// Server Message를 수신해서 화면에 표시

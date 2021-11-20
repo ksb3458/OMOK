@@ -64,6 +64,9 @@ public class JavaGameClientLobby extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private String UserName;
+	private String Ip_Addr;
+	private String Port_No;
+	
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 	private Socket socket; // 연결소켓
 	private InputStream is;
@@ -105,7 +108,9 @@ public class JavaGameClientLobby extends JFrame {
 		lblUserName.setBounds(12, 23, 68, 40);
 		contentPane.add(lblUserName);
 		setVisible(true);
-
+		
+		Ip_Addr = ip_addr;
+		Port_No = port_no;
 		UserName = username;
 		lblUserName.setText(username);
 		
@@ -152,7 +157,7 @@ public class JavaGameClientLobby extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			//JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
-			JavaGameClientRoom view = new JavaGameClientRoom(UserName);
+			JavaGameClientRoom view = new JavaGameClientRoom(UserName, Ip_Addr, Port_No);
 			setVisible(false);
 		}
 	}
