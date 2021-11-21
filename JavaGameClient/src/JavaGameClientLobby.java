@@ -78,7 +78,7 @@ public class JavaGameClientLobby extends JFrame {
 	private ObjectOutputStream oos;
 
 	private JLabel lblUserName;
-	
+	public JLayeredPane layeredPane;
 	private JButton roomBtn;
 
 	private Frame frame;
@@ -122,7 +122,7 @@ public class JavaGameClientLobby extends JFrame {
 		scrollPane.setBounds(12, 73, 391, 362);
 		contentPane.add(scrollPane);
 		
-		JLayeredPane layeredPane = new JLayeredPane();
+		layeredPane = new JLayeredPane();
 		scrollPane.setViewportView(layeredPane);
 
 		Myaction action = new Myaction();

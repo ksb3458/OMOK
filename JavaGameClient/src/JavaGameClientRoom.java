@@ -107,6 +107,10 @@ public class JavaGameClientRoom extends JFrame {
 	private JTextField pwText;
 	private JLabel pwLabel;
 	
+	private String password;
+	private String roomNameText;
+	private String lookResult;
+	private String secretResult;
 	
 	/**
 	 * Create the frame.
@@ -243,7 +247,7 @@ public class JavaGameClientRoom extends JFrame {
 		Port_No = port_no;
 		UserName = username;
 
-		/*try {
+		try {
 			socket = new Socket(ip_addr, Integer.parseInt(port_no));
 //			is = socket.getInputStream();
 //			dis = new DataInputStream(is);
@@ -254,17 +258,13 @@ public class JavaGameClientRoom extends JFrame {
 			oos.flush();
 			ois = new ObjectInputStream(socket.getInputStream());
 
-			// SendMessage("/login " + UserName);
-			ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
-			SendObject(obcm);
-
 			ListenNetwork net = new ListenNetwork();
 			net.start();
 
 		} catch (NumberFormatException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 		
 		goLobby action = new goLobby();
 		cancelBtn.addActionListener(action);
@@ -273,8 +273,8 @@ public class JavaGameClientRoom extends JFrame {
 		secretYesBtn.addActionListener(action2);
 		secretNoBtn.addActionListener(action2);
 		
-		createRoom action3 = new createRoom();
-		roomBtn.addActionListener(action3);
+		createRoomAction action3 = new createRoomAction();
+		createRoom.addActionListener(action3);
 	}
 	
 	class goLobby implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
@@ -299,17 +299,57 @@ public class JavaGameClientRoom extends JFrame {
 			else {
 				panel.remove(pwLabel);
 				panel.remove(pwText);
+				pwText.setText(null);
 				panel.repaint();
 			}
 		}
 	}
 	
-	class createRoom implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
+	class createRoomAction implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
 	{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
-			JavaGameClientLobby lobby = new JavaGameClientLobby(UserName, Ip_Addr, Port_No);
+			roomNameText = roomName.getText();
+			if(secretYesBtn.isSelected()) {
+				secretResult = "Y";
+				password = pwText.getText();
+			}
+			else {
+				secretResult = "N";
+				password = null;
+			}
+			if(lookYesBtn.isSelected())
+				lookResult = "Y";
+			else
+				lookResult = "N";
+			
+			String msg = new String();
+			msg = String.format("%s %s %s %s", roomNameText, lookResult, secretResult, password);
+			System.out.println("1. msg : " + msg);
+			
+			try {
+				// dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+				ChatMsg obcm = new ChatMsg(UserName, "200", msg);
+				oos.writeObject(obcm);
+			} catch (IOException e1) {
+				// AppendText("dos.write() error");
+				try {
+//					dos.close();
+//					dis.close();
+					ois.close();
+					oos.close();
+					socket.close();
+				} catch (IOException e11) {
+					// TODO Auto-generated catch block
+					e11.printStackTrace();
+					System.exit(0);
+				}
+			}
+			JavaGameClientView view = new JavaGameClientView(UserName, Ip_Addr, Port_No);
+			//JavaGameClientLobby lobby = new JavaGameClientLobby(UserName, Ip_Addr, Port_No);
 			setVisible(false);
 		}
 	}
@@ -339,10 +379,8 @@ public class JavaGameClientRoom extends JFrame {
 					} else
 						continue;
 					switch (cm.code) {
-					case "200": // chat message
-						break;
-						
-					case "300": // chat message
+					case "200":
+						System.out.println("2 : "+cm.data);
 						break;
 					}
 				} catch (IOException e) {
@@ -389,7 +427,7 @@ public class JavaGameClientRoom extends JFrame {
 //			byte[] bb;
 //			bb = MakePacket(msg);
 //			dos.write(bb, 0, bb.length);
-			ChatMsg obcm = new ChatMsg(UserName, "200", msg);
+			ChatMsg obcm = new ChatMsg(UserName, "300", msg);
 			oos.writeObject(obcm);
 		} catch (IOException e) {
 			// AppendText("dos.write() error");

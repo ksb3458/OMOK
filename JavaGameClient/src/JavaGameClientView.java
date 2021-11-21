@@ -62,6 +62,8 @@ public class JavaGameClientView extends JFrame {
 	private JPanel contentPane;
 	private JTextField txtInput;
 	private String UserName;
+	private String Ip_Addr;
+	private String Port_No;
 	private JButton btnSend;
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 	private Socket socket; // 연결소켓
@@ -135,6 +137,8 @@ public class JavaGameClientView extends JFrame {
 
 		AppendText("User " + username + " connecting " + ip_addr + " " + port_no);
 		UserName = username;
+		Ip_Addr = ip_addr;
+		Port_No = port_no;
 		lblUserName.setText(username);
 
 		JButton btnNewButton = new JButton("종 료");
@@ -206,10 +210,6 @@ public class JavaGameClientView extends JFrame {
 			oos.flush();
 			ois = new ObjectInputStream(socket.getInputStream());
 
-			// SendMessage("/login " + UserName);
-			ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
-			SendObject(obcm);
-
 			ListenNetwork net = new ListenNetwork();
 			net.start();
 			TextSendAction action = new TextSendAction();
@@ -255,14 +255,16 @@ public class JavaGameClientView extends JFrame {
 					} else
 						continue;
 					switch (cm.code) {
-					case "200": // chat message
+					case "200" :
+						break;
+					case "300": // chat message
 						if (cm.UserName.equals(UserName))
 							AppendTextR(msg); // 내 메세지는 우측에
 						else
 							AppendText(msg);
 						break;
 						
-					case "300": // chat message
+					case "301": // chat message
 						if (cm.UserName.equals(UserName))
 							AppendTextR("[" + cm.UserName + "]");
 							//AppendTextR(" ");
@@ -313,28 +315,28 @@ public class JavaGameClientView extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == faceBtn1) {
-				ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
+				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
 				ImageIcon img = new ImageIcon("icon/fun.png");
 				obcm.img = img;
 				SendObject(obcm);
 			}
 			
 			else if(e.getSource() == faceBtn2) {
-				ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
+				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
 				ImageIcon img = new ImageIcon("icon/cry.png");
 				obcm.img = img;
 				SendObject(obcm);
 			}
 			
 			else if(e.getSource() == faceBtn3) {
-				ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
+				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
 				ImageIcon img = new ImageIcon("icon/sp.png");
 				obcm.img = img;
 				SendObject(obcm);
 			}
 			
 			else if(e.getSource() == faceBtn4) {
-				ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
+				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
 				ImageIcon img = new ImageIcon("icon/angry.png");
 				obcm.img = img;
 				SendObject(obcm);
@@ -426,7 +428,7 @@ public class JavaGameClientView extends JFrame {
 //			byte[] bb;
 //			bb = MakePacket(msg);
 //			dos.write(bb, 0, bb.length);
-			ChatMsg obcm = new ChatMsg(UserName, "200", msg);
+			ChatMsg obcm = new ChatMsg(UserName, "300", msg);
 			oos.writeObject(obcm);
 		} catch (IOException e) {
 			// AppendText("dos.write() error");

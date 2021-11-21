@@ -28,9 +28,6 @@ import javax.swing.SwingConstants;
 
 public class JavaGameServer extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	JTextArea textArea;
@@ -40,7 +37,6 @@ public class JavaGameServer extends JFrame {
 	private Socket client_socket; // accept() 에서 생성된 client 소켓
 	private Vector UserVec = new Vector(); // 연결된 사용자를 저장할 벡터
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
-
 	/**
 	 * Launch the application.
 	 */
@@ -159,6 +155,11 @@ public class JavaGameServer extends JFrame {
 		private Vector user_vc;
 		public String UserName = "";
 		public String UserStatus;
+		
+		private String password;
+		private String roomNameText;
+		private String lookResult;
+		private String secretResult;
 
 		public UserService(Socket client_socket) {
 			// TODO Auto-generated constructor stub
@@ -256,7 +257,7 @@ public class JavaGameServer extends JFrame {
 //				byte[] bb;
 //				bb = MakePacket(msg);
 //				dos.write(bb, 0, bb.length);
-				ChatMsg obcm = new ChatMsg("SERVER", "200", msg);
+				ChatMsg obcm = new ChatMsg("SERVER", "300", msg);
 				oos.writeObject(obcm);
 			} catch (IOException e) {
 				AppendText("dos.writeObject() error");
@@ -280,7 +281,7 @@ public class JavaGameServer extends JFrame {
 		// 귓속말 전송
 		public void WritePrivate(String msg) {
 			try {
-				ChatMsg obcm = new ChatMsg("귓속말", "200", msg);
+				ChatMsg obcm = new ChatMsg("귓속말", "300", msg);
 				oos.writeObject(obcm);
 			} catch (IOException e) {
 				AppendText("dos.writeObject() error");
@@ -362,7 +363,26 @@ public class JavaGameServer extends JFrame {
 						UserName = cm.UserName;
 						UserStatus = "O"; // Online 상태
 						Login();
-					} else if (cm.code.matches("200")) {
+					}
+					
+					else if (cm.code.matches("200")) {
+						String[] args = cm.data.split(" ");
+						roomNameText = args[0];
+						lookResult = args[1];
+						secretResult = args[2];
+						if(secretResult == "Y")
+							password = args[3];
+						else
+							password = null;
+						System.out.println("roomName : "+roomNameText);
+						System.out.println("lookResult : "+lookResult);
+						System.out.println("secretResult : "+secretResult);
+						
+						GameRoom room = new GameRoom(roomNameText, lookResult, secretResult, password);
+						
+					}
+					
+					else if (cm.code.matches("300")) {
 						msg = String.format("[%s] %s", cm.UserName, cm.data);
 						AppendText(msg); // server 화면에 출력
 						String[] args = msg.split(" "); // 단어들을 분리한다.
@@ -405,10 +425,14 @@ public class JavaGameServer extends JFrame {
 							//WriteAll(msg + "\n"); // Write All
 							WriteAllObject(cm);
 						}
-					} else if (cm.code.matches("400")) { // logout message 처리
+					} 
+					
+					else if (cm.code.matches("400")) { // logout message 처리
 						Logout();
 						break;
-					} else { // 300, 500, ... 기타 object는 모두 방송한다.
+					}
+					
+					else { // 300, 500, ... 기타 object는 모두 방송한다.
 						WriteAllObject(cm);
 					} 
 				} catch (IOException e) {
