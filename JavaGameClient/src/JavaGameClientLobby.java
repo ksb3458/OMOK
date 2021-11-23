@@ -42,6 +42,7 @@ import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
+import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.Color;
 import javax.swing.border.BevelBorder;
@@ -56,6 +57,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import javax.swing.JLayeredPane;
+import javax.swing.BoxLayout;
 
 public class JavaGameClientLobby extends JFrame {
 	/**
@@ -63,6 +65,7 @@ public class JavaGameClientLobby extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
+	private JScrollPane panel;
 	private String UserName;
 	private String Ip_Addr;
 	private String Port_No;
@@ -78,13 +81,19 @@ public class JavaGameClientLobby extends JFrame {
 	private ObjectOutputStream oos;
 
 	private JLabel lblUserName;
-	public JLayeredPane layeredPane;
 	private JButton roomBtn;
 
 	private Frame frame;
 	private FileDialog fd;
 	private Graphics gc;
 	private Graphics gc2 = null;
+	
+	private String password;
+	private String roomNameText;
+	private String lookResult;
+	private String secretResult;
+	
+	private int roomHeight = 5;
 	
 	
 	/**
@@ -118,12 +127,10 @@ public class JavaGameClientLobby extends JFrame {
 		roomBtn.setBounds(303, 23, 100, 40);
 		contentPane.add(roomBtn);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(12, 73, 391, 362);
-		contentPane.add(scrollPane);
-		
-		layeredPane = new JLayeredPane();
-		scrollPane.setViewportView(layeredPane);
+		panel = new JScrollPane();
+		panel.setBounds(12, 73, 391, 362);
+		contentPane.add(panel);
+		panel.setLayout(null);
 
 		Myaction action = new Myaction();
 		roomBtn.addActionListener(action);
@@ -188,6 +195,24 @@ public class JavaGameClientLobby extends JFrame {
 						continue;
 					switch (cm.code) {
 					case "200": // chat message
+						String[] args = cm.data.split(" ");
+						roomNameText = args[0];
+						lookResult = args[1];
+						secretResult = args[2];
+						if(secretResult == "Y")
+							password = args[3];
+						else
+							password = null;
+
+						GameRoom room = new GameRoom(roomNameText, lookResult, secretResult, password);
+						JButton btnTest = new JButton();
+						btnTest.setText("test");
+						JPanel newPane = new JPanel();
+						newPane = room.getPanel();
+						newPane.setBounds(5, roomHeight, 380, 100);
+						roomHeight += 120;
+						panel.add(newPane);
+						panel.repaint();
 						break;
 						
 					case "300": // chat message

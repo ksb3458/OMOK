@@ -155,11 +155,6 @@ public class JavaGameServer extends JFrame {
 		private Vector user_vc;
 		public String UserName = "";
 		public String UserStatus;
-		
-		private String password;
-		private String roomNameText;
-		private String lookResult;
-		private String secretResult;
 
 		public UserService(Socket client_socket) {
 			// TODO Auto-generated constructor stub
@@ -366,20 +361,7 @@ public class JavaGameServer extends JFrame {
 					}
 					
 					else if (cm.code.matches("200")) {
-						String[] args = cm.data.split(" ");
-						roomNameText = args[0];
-						lookResult = args[1];
-						secretResult = args[2];
-						if(secretResult == "Y")
-							password = args[3];
-						else
-							password = null;
-						System.out.println("roomName : "+roomNameText);
-						System.out.println("lookResult : "+lookResult);
-						System.out.println("secretResult : "+secretResult);
-						
-						GameRoom room = new GameRoom(roomNameText, lookResult, secretResult, password);
-						
+						WriteAllObject(cm);
 					}
 					
 					else if (cm.code.matches("300")) {

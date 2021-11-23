@@ -66,30 +66,39 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JRadioButton;
 import java.awt.SystemColor;
 
-public class GameRoom extends JFrame {
+public class GameRoom extends JPanel {
 	
 	private String RoomName, Look, Secret, Password;
+	private JPanel panel;
 	
 	public GameRoom(String roomname, String look, String secret, String password)  {
-		getContentPane().setBackground(SystemColor.info);
-		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 376, 156);
-		getContentPane().setLayout(null);
+		setPanel(new JPanel());
+		getPanel().setBackground(SystemColor.info);
+		
+		setBounds(100, 100, 380, 156);
+		getPanel().setLayout(null);
 		
 		JLabel nameLabel = new JLabel("");
-		nameLabel.setBounds(12, 31, 177, 43);
-		getContentPane().add(nameLabel);
+		nameLabel.setBounds(12, 10, 177, 43);
+		getPanel().add(nameLabel);
 		
 		JLabel lblNewLabel = new JLabel("New label");
-		lblNewLabel.setBounds(201, 31, 57, 43);
-		getContentPane().add(lblNewLabel);
+		lblNewLabel.setBounds(201, 10, 57, 43);
+		getPanel().add(lblNewLabel);
 		
 		JButton enterBtn = new JButton("입장하기");
-		enterBtn.setBounds(270, 31, 88, 43);
-		getContentPane().add(enterBtn);
+		enterBtn.setBounds(305, 10, 88, 43);
+		getPanel().add(enterBtn);
 		
 		RoomName = roomname;
 		nameLabel.setText(RoomName);
+	}
+
+	public JPanel getPanel() {
+		return panel;
+	}
+
+	public void setPanel(JPanel panel) {
+		this.panel = panel;
 	}
 }
