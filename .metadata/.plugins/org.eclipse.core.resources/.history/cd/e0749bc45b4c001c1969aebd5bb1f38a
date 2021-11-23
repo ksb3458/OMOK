@@ -42,6 +42,7 @@ import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
+import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.Color;
 import javax.swing.border.BevelBorder;
@@ -54,15 +55,21 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.JLayeredPane;
 
-public class JavaGameClientRoom extends JFrame {
+import javax.swing.JLayeredPane;
+import javax.swing.BoxLayout;
+
+public class JavaGameClientLobby extends JFrame {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
+	private JScrollPane panel;
 	private String UserName;
+	private String Ip_Addr;
+	private String Port_No;
+	
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 	private Socket socket; // 연결소켓
 	private InputStream is;
@@ -72,7 +79,8 @@ public class JavaGameClientRoom extends JFrame {
 
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
-	
+
+	private JLabel lblUserName;
 	private JButton roomBtn;
 
 	private Frame frame;
@@ -80,12 +88,19 @@ public class JavaGameClientRoom extends JFrame {
 	private Graphics gc;
 	private Graphics gc2 = null;
 	
+	private String password;
+	private String roomNameText;
+	private String lookResult;
+	private String secretResult;
+	
+	private int roomHeight = 5;
+	
 	
 	/**
 	 * Create the frame.
 	 * @throws BadLocationException 
 	 */
-	public JavaGameClientRoom(String username)  {
+	public JavaGameClientLobby(String username, String ip_addr, String port_no)  {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 435, 500);
@@ -93,11 +108,34 @@ public class JavaGameClientRoom extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+
+		lblUserName = new JLabel("Name");
+		lblUserName.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblUserName.setBackground(Color.WHITE);
+		lblUserName.setFont(new Font("굴림", Font.BOLD, 14));
+		lblUserName.setHorizontalAlignment(SwingConstants.CENTER);
+		lblUserName.setBounds(12, 23, 68, 40);
+		contentPane.add(lblUserName);
 		setVisible(true);
-
+		
+		Ip_Addr = ip_addr;
+		Port_No = port_no;
 		UserName = username;
+		lblUserName.setText(username);
+		
+		JButton roomBtn = new JButton("방 만들기");
+		roomBtn.setBounds(303, 23, 100, 40);
+		contentPane.add(roomBtn);
+		
+		panel = new JScrollPane();
+		panel.setBounds(12, 73, 391, 362);
+		contentPane.add(panel);
+		panel.setLayout(null);
 
-		/*try {
+		Myaction action = new Myaction();
+		roomBtn.addActionListener(action);
+		
+		try {
 			socket = new Socket(ip_addr, Integer.parseInt(port_no));
 //			is = socket.getInputStream();
 //			dis = new DataInputStream(is);
@@ -118,8 +156,17 @@ public class JavaGameClientRoom extends JFrame {
 		} catch (NumberFormatException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
-
+		}
+	}
+	
+	class Myaction implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
+			JavaGameClientRoom view = new JavaGameClientRoom(UserName, Ip_Addr, Port_No);
+			setVisible(false);
+		}
 	}
 	
 	// Server Message를 수신해서 화면에 표시
@@ -148,6 +195,26 @@ public class JavaGameClientRoom extends JFrame {
 						continue;
 					switch (cm.code) {
 					case "200": // chat message
+						String[] args = cm.data.split(" ");
+						roomNameText = args[0];
+						lookResult = args[1];
+						secretResult = args[2];
+						if(secretResult == "Y")
+							password = args[3];
+						else
+							password = null;
+
+						GameRoom room = new GameRoom(roomNameText, lookResult, secretResult, password);
+						JButton btnTest = new JButton();
+						btnTest.setText("test");
+						JPanel newPane = new JPanel();
+						newPane = room.getPanel();
+						newPane.setBounds(5, roomHeight, 380, 100);
+						roomHeight += 120;
+						panel.add(newPane);
+						panel.getVerticalScrollBar().setValue(panel.getVerticalScrollBar().getMaximum());
+						panel.requestFocusInWindow();
+						panel.repaint();
 						break;
 						
 					case "300": // chat message
