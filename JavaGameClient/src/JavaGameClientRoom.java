@@ -83,6 +83,7 @@ public class JavaGameClientRoom extends JFrame {
 
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
+	private JavaGameClientLobby.ListenNetwork net;
 	
 	private JButton roomBtn;
 
@@ -111,12 +112,13 @@ public class JavaGameClientRoom extends JFrame {
 	private String roomNameText;
 	private String lookResult;
 	private String secretResult;
+	public JTextPane textArea;
 	
 	/**
 	 * Create the frame.
 	 * @throws BadLocationException 
 	 */
-	public JavaGameClientRoom(String username, String ip_addr, String port_no)  {
+	public JavaGameClientRoom(Socket Socket, ObjectOutputStream OOS, ObjectInputStream OIS, JavaGameClientLobby.ListenNetwork NET, String username, String ip_addr, String port_no)  {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 375, 426);
@@ -246,20 +248,20 @@ public class JavaGameClientRoom extends JFrame {
 		Ip_Addr = ip_addr;
 		Port_No = port_no;
 		UserName = username;
+		net = NET;
 
 		try {
-			socket = new Socket(ip_addr, Integer.parseInt(port_no));
+			socket = Socket;
 //			is = socket.getInputStream();
 //			dis = new DataInputStream(is);
 //			os = socket.getOutputStream();
 //			dos = new DataOutputStream(os);
 
-			oos = new ObjectOutputStream(socket.getOutputStream());
+			oos = OOS;
 			oos.flush();
-			ois = new ObjectInputStream(socket.getInputStream());
+			ois = OIS;
 
-			ListenNetwork net = new ListenNetwork();
-			net.start();
+//			net.start();
 
 		} catch (NumberFormatException | IOException e) {
 			// TODO Auto-generated catch block
@@ -276,7 +278,7 @@ public class JavaGameClientRoom extends JFrame {
 		createRoomAction action3 = new createRoomAction();
 		createRoom.addActionListener(action3);
 	}
-	
+
 	class goLobby implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
 	{
 		@Override
@@ -348,56 +350,10 @@ public class JavaGameClientRoom extends JFrame {
 					System.exit(0);
 				}
 			}
-			JavaGameClientView view = new JavaGameClientView(UserName, Ip_Addr, Port_No);
+			JavaGameClientView view = new JavaGameClientView(UserName, socket, oos, ois, net, roomNameText);
 			//JavaGameClientLobby lobby = new JavaGameClientLobby(UserName, Ip_Addr, Port_No);
+			JavaGameClientLobby.textArea = view.getViewTextArea();
 			setVisible(false);
-		}
-	}
-	
-	// Server Message를 수신해서 화면에 표시
-	class ListenNetwork extends Thread {
-		public void run() {
-			while (true) {
-				try {
-
-					Object obcm = null;
-					String msg = null;
-					ChatMsg cm;
-					try {
-						obcm = ois.readObject();
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						break;
-					}
-					if (obcm == null)
-						break;
-					if (obcm instanceof ChatMsg) {
-						cm = (ChatMsg) obcm;
-						msg = String.format("[%s]\n%s", cm.UserName, cm.data);
-						//msg = String.format("\n%s", cm.data);
-					} else
-						continue;
-					switch (cm.code) {
-					case "200":
-						System.out.println("2 : "+cm.data);
-						break;
-					}
-				} catch (IOException e) {
-					try {
-//						dos.close();
-//						dis.close();
-						ois.close();
-						oos.close();
-						socket.close();
-
-						break;
-					} catch (Exception ee) {
-						break;
-					} // catch문 끝
-				} // 바깥 catch문끝
-
-			}
 		}
 	}
 

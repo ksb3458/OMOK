@@ -74,18 +74,16 @@ public class JavaGameClientView extends JFrame {
 
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
+	private JavaGameClientLobby.ListenNetwork net;
 
 	private JLabel lblUserName;
 	// private JTextArea textArea;
-	private JTextPane textArea;
-
+	public JTextPane textArea;
 	private Frame frame;
 	private FileDialog fd;
 
 	JPanel panel;
 	private Graphics gc;
-	private int pen_size = 2; // minimum 2
-	// 그려진 Image를 보관하는 용도, paint() 함수에서 이용한다.
 	private Graphics gc2 = null;
 	
 	ImageIcon faceIcon1 = new ImageIcon("icon/fun.png");
@@ -98,7 +96,7 @@ public class JavaGameClientView extends JFrame {
 	 * Create the frame.
 	 * @throws BadLocationException 
 	 */
-	public JavaGameClientView(String username, String ip_addr, String port_no)  {
+	public JavaGameClientView(String username, Socket Socket, ObjectOutputStream OOS, ObjectInputStream OIS, JavaGameClientLobby.ListenNetwork NET, String roomName)  {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 860, 634);
@@ -111,10 +109,10 @@ public class JavaGameClientView extends JFrame {
 		scrollPane.setBounds(581, 162, 251, 316);
 		contentPane.add(scrollPane);
 		
-		textArea = new JTextPane();
-		scrollPane.setViewportView(textArea);
-		textArea.setEditable(true);
-		textArea.setFont(new Font("굴림체", Font.PLAIN, 14));
+		setViewTextArea(new JTextPane());
+		scrollPane.setViewportView(getViewTextArea());
+		getViewTextArea().setEditable(true);
+		getViewTextArea().setFont(new Font("굴림체", Font.PLAIN, 14));
 
 		txtInput = new JTextField();
 		txtInput.setBounds(581, 485, 183, 40);
@@ -135,17 +133,14 @@ public class JavaGameClientView extends JFrame {
 		contentPane.add(lblUserName);
 		setVisible(true);
 
-		AppendText("User " + username + " connecting " + ip_addr + " " + port_no);
 		UserName = username;
-		Ip_Addr = ip_addr;
-		Port_No = port_no;
-		lblUserName.setText(username);
+		lblUserName.setText(roomName);
 
 		JButton btnNewButton = new JButton("종 료");
 		btnNewButton.setFont(new Font("굴림", Font.PLAIN, 14));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
+				ChatMsg msg = new ChatMsg(UserName, "500", "Bye");
 				SendObject(msg);
 				System.exit(0);
 			}
@@ -200,18 +195,18 @@ public class JavaGameClientView extends JFrame {
 		gc = panel.getGraphics();
 
 		try {
-			socket = new Socket(ip_addr, Integer.parseInt(port_no));
+			socket = Socket;
 //			is = socket.getInputStream();
 //			dis = new DataInputStream(is);
 //			os = socket.getOutputStream();
 //			dos = new DataOutputStream(os);
-
-			oos = new ObjectOutputStream(socket.getOutputStream());
+			
+			oos = OOS;
 			oos.flush();
-			ois = new ObjectInputStream(socket.getInputStream());
+			ois = OIS;
+			
+			net = NET;
 
-			ListenNetwork net = new ListenNetwork();
-			net.start();
 			TextSendAction action = new TextSendAction();
 			btnSend.addActionListener(action);
 			txtInput.addActionListener(action);
@@ -228,69 +223,6 @@ public class JavaGameClientView extends JFrame {
 			AppendText("connect error");
 		}
 
-	}
-	
-	// Server Message를 수신해서 화면에 표시
-	class ListenNetwork extends Thread {
-		public void run() {
-			while (true) {
-				try {
-
-					Object obcm = null;
-					String msg = null;
-					ChatMsg cm;
-					try {
-						obcm = ois.readObject();
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						break;
-					}
-					if (obcm == null)
-						break;
-					if (obcm instanceof ChatMsg) {
-						cm = (ChatMsg) obcm;
-						msg = String.format("[%s]\n%s", cm.UserName, cm.data);
-						//msg = String.format("\n%s", cm.data);
-					} else
-						continue;
-					switch (cm.code) {
-					case "200" :
-						break;
-					case "300": // chat message
-						if (cm.UserName.equals(UserName))
-							AppendTextR(msg); // 내 메세지는 우측에
-						else
-							AppendText(msg);
-						break;
-						
-					case "301": // chat message
-						if (cm.UserName.equals(UserName))
-							AppendTextR("[" + cm.UserName + "]");
-							//AppendTextR(" ");
-						else
-							AppendText("[" + cm.UserName + "]");
-							//AppendText(" ");
-						AppendImage(cm.img);
-						break;
-					}
-				} catch (IOException e) {
-					AppendText("ois.readObject() error");
-					try {
-//						dos.close();
-//						dis.close();
-						ois.close();
-						oos.close();
-						socket.close();
-
-						break;
-					} catch (Exception ee) {
-						break;
-					} // catch문 끝
-				} // 바깥 catch문끝
-
-			}
-		}
 	}
 
 	// keyboard enter key 치면 서버로 전송
@@ -351,10 +283,10 @@ public class JavaGameClientView extends JFrame {
 	private JButton faceBtn4;
 
 	public void AppendIcon(ImageIcon icon) {
-		int len = textArea.getDocument().getLength();
+		int len = getViewTextArea().getDocument().getLength();
 		// 끝으로 이동
-		textArea.setCaretPosition(len);
-		textArea.insertIcon(icon);
+		getViewTextArea().setCaretPosition(len);
+		getViewTextArea().insertIcon(icon);
 	}
 
 	// 화면에 출력
@@ -365,7 +297,7 @@ public class JavaGameClientView extends JFrame {
 		//textArea.setCaretPosition(len);
 		//textArea.replaceSelection(msg + "\n");
 		
-		StyledDocument doc = textArea.getStyledDocument();
+		StyledDocument doc = getViewTextArea().getStyledDocument();
 		SimpleAttributeSet left = new SimpleAttributeSet();
 		StyleConstants.setAlignment(left, StyleConstants.ALIGN_LEFT);
 		StyleConstants.setForeground(left, Color.BLACK);
@@ -376,16 +308,16 @@ public class JavaGameClientView extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int len = textArea.getDocument().getLength();
-		textArea.setCaretPosition(len);
+		int len = getViewTextArea().getDocument().getLength();
+		getViewTextArea().setCaretPosition(len);
 		//textArea.replaceSelection("\n");
 
 
 	}
 	// 화면 우측에 출력
-	public void AppendTextR(String msg) {
+	/*public static void AppendTextR(String msg) {
 		msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.	
-		StyledDocument doc = textArea.getStyledDocument();
+		StyledDocument doc = getViewTextArea().getStyledDocument();
 		SimpleAttributeSet right = new SimpleAttributeSet();
 		StyleConstants.setAlignment(right, StyleConstants.ALIGN_RIGHT);
 		StyleConstants.setForeground(right, Color.BLUE);	
@@ -396,11 +328,10 @@ public class JavaGameClientView extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int len = textArea.getDocument().getLength();
-		textArea.setCaretPosition(len);
+		int len = getViewTextArea().getDocument().getLength();
+		getViewTextArea().setCaretPosition(len);
 		//textArea.replaceSelection("\n");
-
-	}
+	}*/
 
 	// Windows 처럼 message 제외한 나머지 부분은 NULL 로 만들기 위한 함수
 	public byte[] MakePacket(String msg) {
@@ -446,46 +377,21 @@ public class JavaGameClientView extends JFrame {
 			}
 		}
 	}
-	
-	public void AppendImage(ImageIcon ori_icon) {
-		int len = textArea.getDocument().getLength();
-		textArea.setCaretPosition(len); // place caret at the end (with no selection)
-		Image ori_img = ori_icon.getImage();
-		Image new_img;
-		ImageIcon new_icon;
-		int width, height;
-		double ratio;
-		width = ori_icon.getIconWidth();
-		height = ori_icon.getIconHeight();
-		// Image가 너무 크면 최대 가로 또는 세로 200 기준으로 축소시킨다.
-		if (width > 200 || height > 200) {
-			if (width > height) { // 가로 사진
-				ratio = (double) height / width;
-				width = 200;
-				height = (int) (width * ratio);
-			} else { // 세로 사진
-				ratio = (double) width / height;
-				height = 200;
-				width = (int) (height * ratio);
-			}
-			new_img = ori_img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-			new_icon = new ImageIcon(new_img);
-			textArea.insertIcon(new_icon);
-		} else {
-			textArea.insertIcon(ori_icon);
-			new_img = ori_img;
-		}
-		len = textArea.getDocument().getLength();
-		textArea.setCaretPosition(len);
-		textArea.replaceSelection("\n");
-	}
 
 	public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
 		try {
 			oos.writeObject(ob);
 		} catch (IOException e) {
-			// textArea.append("메세지 송신 에러!!\n");
+			//textArea.append("메세지 송신 에러!!\n");
 			AppendText("SendObject Error");
 		}
+	}
+	
+	public JTextPane getViewTextArea() {
+		return textArea;
+	}
+
+	public void setViewTextArea(JTextPane textArea) {
+		this.textArea = textArea;
 	}
 }
