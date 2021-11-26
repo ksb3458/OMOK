@@ -83,11 +83,6 @@ public class JavaGameClientLobby extends JFrame {
 
 	private JLabel lblUserName;
 	private JButton roomBtn;
-
-	private Frame frame;
-	private FileDialog fd;
-	private Graphics gc;
-	private Graphics gc2 = null;
 	
 	private String password;
 	private String roomNameText;
@@ -239,14 +234,17 @@ public class JavaGameClientLobby extends JFrame {
 							view.AppendText(msg);
 						break;
 						
-					case "301": // chat message
+					case "301":
+						if (view == null) {
+							view = gameRoom.view;
+						}
 						if (cm.UserName.equals(UserName))
 							view.AppendTextR("[" + cm.UserName + "]");
 							//AppendTextR(" ");
 						else
 							view.AppendText("[" + cm.UserName + "]");
 							//AppendText(" ");
-						//AppendImage(cm.img);
+						view.AppendImage(view.img);
 						break;
 					}
 				} catch (IOException e) {

@@ -69,7 +69,6 @@ public class JavaGameClientRoom extends JFrame {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private String UserName;
 	private String Ip_Addr;
@@ -77,11 +76,6 @@ public class JavaGameClientRoom extends JFrame {
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 	
 	private JButton roomBtn;
-
-	private Frame frame;
-	private FileDialog fd;
-	private Graphics gc;
-	private Graphics gc2 = null;
 	private JPanel panel;
 	private JLabel roomLabel;
 	private JButton cancelBtn;
@@ -114,6 +108,7 @@ public class JavaGameClientRoom extends JFrame {
 	 */
 	public JavaGameClientRoom(String username, JavaGameClientLobby lobby)  {
 		gameLobby = lobby;
+		UserName = username;
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 375, 426);

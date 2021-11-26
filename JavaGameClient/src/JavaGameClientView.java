@@ -58,26 +58,18 @@ public class JavaGameClientView extends JFrame {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField txtInput;
 	private String UserName;
-	private String Ip_Addr;
-	private String Port_No;
 	private JButton btnSend;
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	private JLabel lblUserName;
-	// private JTextArea textArea;
 	public JTextPane textArea;
-	private Frame frame;
-	private FileDialog fd;
-	
 	public JavaGameClientLobby gameLobby;
 
 	JPanel panel;
-	private Graphics gc;
-	private Graphics gc2 = null;
+	public ImageIcon img;
 	
 	ImageIcon faceIcon1 = new ImageIcon("icon/fun.png");
 	ImageIcon faceIcon2 = new ImageIcon("icon/cry.png");
@@ -186,7 +178,6 @@ public class JavaGameClientView extends JFrame {
 		timer.setBackground(Color.WHITE);
 		timer.setBounds(581, 26, 144, 60);
 		contentPane.add(timer);
-		gc = panel.getGraphics();
 
 		try {
 			TextSendAction action = new TextSendAction();
@@ -229,29 +220,28 @@ public class JavaGameClientView extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == faceBtn1) {
-				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
-				ImageIcon img = new ImageIcon("icon/fun.png");
-				obcm.img = img;
-				gameLobby.SendObject(obcm);
+				gameLobby.SendMessage("301", "IMG");
+				img = new ImageIcon("icon/fun.png");
+				gameLobby.SendObject(img);
 			}
 			
 			else if(e.getSource() == faceBtn2) {
 				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
-				ImageIcon img = new ImageIcon("icon/cry.png");
+				img = new ImageIcon("icon/cry.png");
 				obcm.img = img;
 				gameLobby.SendObject(obcm);
 			}
 			
 			else if(e.getSource() == faceBtn3) {
 				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
-				ImageIcon img = new ImageIcon("icon/sp.png");
+				img = new ImageIcon("icon/sp.png");
 				obcm.img = img;
 				gameLobby.SendObject(obcm);
 			}
 			
 			else if(e.getSource() == faceBtn4) {
 				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
-				ImageIcon img = new ImageIcon("icon/angry.png");
+				img = new ImageIcon("icon/angry.png");
 				obcm.img = img;
 				gameLobby.SendObject(obcm);
 			}
@@ -312,5 +302,38 @@ public class JavaGameClientView extends JFrame {
 		int len = textArea.getDocument().getLength();
 		textArea.setCaretPosition(len);
 		//textArea.replaceSelection("\n");
+	}
+	
+	public void AppendImage(ImageIcon ori_icon) {
+		int len = textArea.getDocument().getLength();
+		textArea.setCaretPosition(len); // place caret at the end (with no selection)
+		Image ori_img = ori_icon.getImage();
+		Image new_img;
+		ImageIcon new_icon;
+		int width, height;
+		double ratio;
+		width = ori_icon.getIconWidth();
+		height = ori_icon.getIconHeight();
+		// Image가 너무 크면 최대 가로 또는 세로 200 기준으로 축소시킨다.
+		if (width > 200 || height > 200) {
+			if (width > height) { // 가로 사진
+				ratio = (double) height / width;
+				width = 200;
+				height = (int) (width * ratio);
+			} else { // 세로 사진
+				ratio = (double) width / height;
+				height = 200;
+				width = (int) (height * ratio);
+			}
+			new_img = ori_img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+			new_icon = new ImageIcon(new_img);
+			textArea.insertIcon(new_icon);
+		} else {
+			textArea.insertIcon(ori_icon);
+			new_img = ori_img;
+		}
+		len = textArea.getDocument().getLength();
+		textArea.setCaretPosition(len);
+		textArea.replaceSelection("\n");
 	}
 }
