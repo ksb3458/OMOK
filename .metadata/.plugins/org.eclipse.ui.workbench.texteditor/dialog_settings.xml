@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="300"/>
+		<item key="selection" value="201"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="201"/>
+			<item value="manage"/>
+			<item value="301"/>
+			<item value="sendMes"/>
 			<item value="300"/>
+			<item value="appendI"/>
+			<item value="append"/>
+			<item value="javagameclientroom"/>
+			<item value="v"/>
+			<item value="JavaGameClientView(UserName"/>
+			<item value="javagame"/>
+			<item value="J"/>
 			<item value="ois.readObject() error"/>
 			<item value="room"/>
 			<item value="socket"/>
-			<item value="200"/>
-			<item value="sendmess"/>
-			<item value="400"/>
-			<item value="vec"/>
-			<item value="gameroom"/>
-			<item value="username"/>
-			<item value="view"/>
-			<item value="100"/>
-			<item value="login"/>
-			<item value="textArea"/>
-			<item value="scroll"/>
 		</list>
 		<list key="replacehistory">
 		</list>

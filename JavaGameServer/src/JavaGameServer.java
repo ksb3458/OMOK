@@ -38,7 +38,7 @@ public class JavaGameServer extends JFrame {
 	private Vector UserVec = new Vector(); // 연결된 사용자를 저장할 벡터
 	private Vector RoomVec = new Vector();
 	private int roomID = 0;
-	private String[] UserList = new String[999];
+	private String[] room = new String[999];
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 	/**
 	 * Launch the application.
@@ -142,6 +142,10 @@ public class JavaGameServer extends JFrame {
 		textArea.append("data = " + msg.data + "\n");
 		textArea.setCaretPosition(textArea.getText().length());
 	}
+	
+	public void manageRoom() {
+		
+	}
 
 	// User 당 생성되는 Thread
 	// Read One 에서 대기 -> Write All
@@ -156,6 +160,7 @@ public class JavaGameServer extends JFrame {
 
 		private Socket client_socket;
 		private Vector user_vc;
+		public String opPlayer = "";
 		public String UserName = "";
 		public String UserStatus;
 
@@ -363,68 +368,42 @@ public class JavaGameServer extends JFrame {
 						Login();
 					}
 					
-					else if (cm.code.matches("200")) {
-						UserList[roomID] = cm.UserName;
+					else if (cm.code.matches("200")) {				
+						msg = String.format("%d %s", roomID, cm.data);
+						cm.data = msg;
+						room[roomID] = cm.UserName;
 						roomID++;
 						WriteAllObject(cm);
 					}
 					
-					/*else if (cm.code.matches("201")) {
+					else if (cm.code.matches("201")) {
+						int getNum = Integer.parseInt(cm.data);
+						
 						for (int i = 0; i < user_vc.size(); i++) {
 							UserService user = (UserService) user_vc.elementAt(i);
-							if (user.UserName.matches(UserList[1])) {
-								// /to 빼고.. [귓속말] [user1] Hello user2..
-								user.WritePrivate(cm.data + "\n");
-								//user.WriteOne("[귓속말] " + args[0] + " " + msg2 + "\n");
-								break;
+							
+							if(user.UserName.equals(cm.UserName)) {
+								user.opPlayer = room[getNum];
 							}
+							else if(user.UserName.equals(room[getNum]))
+								user.opPlayer = cm.UserName;
+							
+							System.out.println("UserName : " + user.UserName + ", opPlayer : " + user.opPlayer);
 						}
-					}*/
+					}
 					
 					else if (cm.code.matches("300")) {
 						msg = String.format("[%s] %s", cm.UserName, cm.data);
 						AppendText(msg); // server 화면에 출력
-						String[] args = msg.split(" "); // 단어들을 분리한다.
-						if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.
-							UserStatus = "O";
-						} else if (args[1].matches("/exit")) {
-							Logout();
-							break;
-						} else if (args[1].matches("/list")) {
-							WriteOne("User list\n");
-							WriteOne("Name\tStatus\n");
-							WriteOne("-----------------------------\n");
-							for (int i = 0; i < user_vc.size(); i++) {
-								UserService user = (UserService) user_vc.elementAt(i);
-								WriteOne(user.UserName + "\t" + user.UserStatus + "\n");
-							}
-							WriteOne("-----------------------------\n");
-						} else if (args[1].matches("/sleep")) {
-							UserStatus = "S";
-						} else if (args[1].matches("/wakeup")) {
-							UserStatus = "O";
-						} else if (args[1].matches("/to")) { // 귓속말
-							for (int i = 0; i < user_vc.size(); i++) {
-								UserService user = (UserService) user_vc.elementAt(i);
-								if (user.UserName.matches(args[2]) && user.UserStatus.matches("O")) {
-									String msg2 = "";
-									for (int j = 3; j < args.length; j++) {// 실제 message 부분
-										msg2 += args[j];
-										if (j < args.length - 1)
-											msg2 += " ";
-									}
-									// /to 빼고.. [귓속말] [user1] Hello user2..
-									user.WritePrivate(args[0] + " " + msg2 + "\n");
-									//user.WriteOne("[귓속말] " + args[0] + " " + msg2 + "\n");
+						System.out.println(UserName + opPlayer);
+						for (int i = 0; i < user_vc.size(); i++) {
+							UserService user = (UserService) user_vc.elementAt(i);
+							if (user.UserName.matches(opPlayer)) {
+									user.WritePrivate(cm.data + "\n");
 									break;
-								}
 							}
-						} else { // 일반 채팅 메시지
-							UserStatus = "O";
-							//WriteAll(msg + "\n"); // Write All
-							WriteAllObject(cm);
 						}
-					} 
+					}
 					
 					else if (cm.code.matches("500")) { // logout message 처리
 						Logout();

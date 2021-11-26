@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -55,7 +56,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-
+import javax.swing.text.html.HTMLDocument.Iterator;
 import javax.swing.JLayeredPane;
 import javax.swing.BoxLayout;
 
@@ -94,7 +95,7 @@ public class JavaGameClientLobby extends JFrame {
 	public JavaGameClientLobby lobby;
 	public JavaGameClientView view;
 	public JavaGameClientRoom gameRoom;
-	
+	public JButton[] btnlist = new JButton[999];
 	
 	/**
 	 * Create the frame.
@@ -199,27 +200,25 @@ public class JavaGameClientLobby extends JFrame {
 					switch (cm.code) {
 					case "200": // chat message
 						String[] args = cm.data.split(" ");
-						roomNameText = args[0];
-						lookResult = args[1];
-						secretResult = args[2];
+						String roomID = args[0];
+						roomNameText = args[1];
+						lookResult = args[2];
+						secretResult = args[3];
 						if(secretResult == "Y")
-							password = args[3];
+							password = args[4];
 						else
 							password = null;
 
-						GameRoom room = new GameRoom(UserName, roomNameText, lookResult, secretResult, password);
-						JButton btnTest = new JButton();
-						btnTest.setText("test");
+						GameRoom room = new GameRoom(roomID, cm.UserName, roomNameText, lookResult, secretResult, password);
 						JPanel newPane = new JPanel();
 						newPane = room.getPanel();
 						newPane.setBounds(5, roomHeight, 380, 100);
 						enterRoomAction action = new enterRoomAction();
 						room.getEnterBtn().addActionListener(action);
+						btnlist[Integer.parseInt(roomID)] = room.getEnterBtn();
 						roomHeight += 120;
 						panel.add(newPane);
 						panel.repaint();
-
-						break;
 					
 					case "201":
 						break;
@@ -268,18 +267,21 @@ public class JavaGameClientLobby extends JFrame {
 	class enterRoomAction implements ActionListener// 내부클래스로 액션 이벤트 처리 클래스
 	{
 		public void actionPerformed(ActionEvent e) {
+			int roomID = -1;
+			for(int i = 0; i<btnlist.length; i++) {
+				if(e.getSource() == btnlist[i]) {
+					roomID = i;
+					break;
+				}
+			}
+			System.out.println(roomID);
+			
 			try {
-				// dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
-				ChatMsg obcm = new ChatMsg(UserName, "201", "enterRoom");
+				ChatMsg obcm = new ChatMsg(UserName, "201", Integer.toString(roomID));
 				oos.writeObject(obcm);
 			} catch (IOException e1) {
 				// AppendText("dos.write() error");
 				try {
-//					dos.close();
-//					dis.close();
 					ois.close();
 					oos.close();
 					socket.close();
@@ -288,9 +290,7 @@ public class JavaGameClientLobby extends JFrame {
 					e11.printStackTrace();
 					System.exit(0);
 				}
-			}
-			//setVisible(false);
-			//JavaGameClientView view = new JavaGameClientView(UserName, socket, oos, ois, net, roomNameText);
+			}		
 			view = new JavaGameClientView(UserName, roomNameText, lobby);
 			setVisible(false);
 		}

@@ -297,17 +297,10 @@ public class JavaGameClientRoom extends JFrame {
 			System.out.println("1. msg : " + msg);
 			
 			try {
-				// dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
 				ChatMsg obcm = new ChatMsg(UserName, "200", msg);
 				gameLobby.oos.writeObject(obcm);
 			} catch (IOException e1) {
-				// AppendText("dos.write() error");
 				try {
-//					dos.close();
-//					dis.close();
 					gameLobby.ois.close();
 					gameLobby.oos.close();
 					gameLobby.socket.close();
@@ -317,8 +310,6 @@ public class JavaGameClientRoom extends JFrame {
 					System.exit(0);
 				}
 			}
-			//JavaGameClientView view = new JavaGameClientView(UserName, socket, oos, ois, net, roomNameText);
-			//JavaGameClientLobby lobby = new JavaGameClientLobby(UserName, Ip_Addr, Port_No);
 			view = new JavaGameClientView(UserName, roomNameText, gameLobby);
 			setVisible(false);
 		}
