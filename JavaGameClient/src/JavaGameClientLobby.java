@@ -71,14 +71,14 @@ public class JavaGameClientLobby extends JFrame {
 	private String Port_No;
 	
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
-	private Socket socket; // 연결소켓
+	public Socket socket; // 연결소켓
 	private InputStream is;
 	private OutputStream os;
 	private DataInputStream dis;
 	private DataOutputStream dos;
 
-	private ObjectInputStream ois;
-	private ObjectOutputStream oos;
+	public ObjectInputStream ois;
+	public ObjectOutputStream oos;
 	private ListenNetwork net;
 
 	private JLabel lblUserName;
@@ -96,6 +96,9 @@ public class JavaGameClientLobby extends JFrame {
 	
 	public JTextPane textArea;
 	private int roomHeight = 5;
+	public JavaGameClientLobby lobby;
+	public JavaGameClientView view;
+	public JavaGameClientRoom gameRoom;
 	
 	
 	/**
@@ -103,6 +106,7 @@ public class JavaGameClientLobby extends JFrame {
 	 * @throws BadLocationException 
 	 */
 	public JavaGameClientLobby(String username, String ip_addr, String port_no)  {
+		lobby = this;
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 435, 500);
@@ -166,7 +170,9 @@ public class JavaGameClientLobby extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			//JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
-			JavaGameClientRoom view = new JavaGameClientRoom(socket, oos, ois, net, UserName, Ip_Addr, Port_No);
+			//JavaGameClientRoom view = new JavaGameClientRoom(socket, oos, ois, net, UserName, Ip_Addr, Port_No);
+			//setVisible(false);
+			gameRoom = new JavaGameClientRoom(UserName, lobby);
 			setVisible(false);
 		}
 	}
@@ -224,18 +230,21 @@ public class JavaGameClientLobby extends JFrame {
 						break;
 						
 					case "300": // chat message
+						if (view == null) {
+							view = gameRoom.view;
+						}
 						if (cm.UserName.equals(UserName))
-							AppendTextR(msg); // 내 메세지는 우측에
+							view.AppendTextR(msg); // 내 메세지는 우측에
 						else
-							AppendText(msg);
+							view.AppendText(msg);
 						break;
 						
 					case "301": // chat message
 						if (cm.UserName.equals(UserName))
-							AppendTextR("[" + cm.UserName + "]");
+							view.AppendTextR("[" + cm.UserName + "]");
 							//AppendTextR(" ");
 						else
-							AppendText("[" + cm.UserName + "]");
+							view.AppendText("[" + cm.UserName + "]");
 							//AppendText(" ");
 						//AppendImage(cm.img);
 						break;
@@ -282,10 +291,10 @@ public class JavaGameClientLobby extends JFrame {
 					System.exit(0);
 				}
 			}
+			//setVisible(false);
+			//JavaGameClientView view = new JavaGameClientView(UserName, socket, oos, ois, net, roomNameText);
+			view = new JavaGameClientView(UserName, roomNameText, lobby);
 			setVisible(false);
-			JavaGameClientView view = new JavaGameClientView(UserName, socket, oos, ois, net, roomNameText);
-			//JavaGameClientLobby lobby = new JavaGameClientLobby(UserName, Ip_Addr, Port_No);
-			textArea = view.getViewTextArea();			
 		}
 	}
 
@@ -332,55 +341,38 @@ public class JavaGameClientLobby extends JFrame {
 			}
 		}
 	}
-	
-	// 화면에 출력
-	public void AppendText(String msg) {
-		// textArea.append(msg + "\n");
-		// AppendIcon(icon1);
-		msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.
-		//textArea.setCaretPosition(len);
-		//textArea.replaceSelection(msg + "\n");
-		
-		StyledDocument doc = textArea.getStyledDocument();
-		SimpleAttributeSet left = new SimpleAttributeSet();
-		StyleConstants.setAlignment(left, StyleConstants.ALIGN_LEFT);
-		StyleConstants.setForeground(left, Color.BLACK);
-	    doc.setParagraphAttributes(doc.getLength(), 1, left, false);
-		try {
-			doc.insertString(doc.getLength(), msg+"\n", left );
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		int len = textArea.getDocument().getLength();
-		textArea.setCaretPosition(len);
-		//textArea.replaceSelection("\n");
-	}
-	// 화면 우측에 출력
-	public void AppendTextR(String msg) {
-		msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.	
-		StyledDocument doc = textArea.getStyledDocument();
-		SimpleAttributeSet right = new SimpleAttributeSet();
-		StyleConstants.setAlignment(right, StyleConstants.ALIGN_RIGHT);
-		StyleConstants.setForeground(right, Color.BLUE);	
-	    doc.setParagraphAttributes(doc.getLength(), 1, right, false);
-		try {
-			doc.insertString(doc.getLength(),msg+"\n", right );
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		int len = textArea.getDocument().getLength();
-		textArea.setCaretPosition(len);
-		//textArea.replaceSelection("\n");
-
-	}
 
 	public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
 		try {
 			oos.writeObject(ob);
 		} catch (IOException e) {
 			// textArea.append("메세지 송신 에러!!\n");
+		}
+	}
+	
+	// Server에게 network으로 전송
+	public void SendMessage(String msg) {
+		try {
+			// dos.writeUTF(msg);
+//			byte[] bb;
+//			bb = MakePacket(msg);
+//			dos.write(bb, 0, bb.length);
+			ChatMsg obcm = new ChatMsg(UserName, "300", msg);
+			oos.writeObject(obcm);
+		} catch (IOException e) {
+			// AppendText("dos.write() error");
+			view.AppendText("oos.writeObject() error");
+			try {
+//				dos.close();
+//				dis.close();
+				ois.close();
+				oos.close();
+				socket.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				System.exit(0);
+			}
 		}
 	}
 }

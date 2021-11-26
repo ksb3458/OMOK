@@ -75,15 +75,6 @@ public class JavaGameClientRoom extends JFrame {
 	private String Ip_Addr;
 	private String Port_No;
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
-	private Socket socket; // 연결소켓
-	private InputStream is;
-	private OutputStream os;
-	private DataInputStream dis;
-	private DataOutputStream dos;
-
-	private ObjectInputStream ois;
-	private ObjectOutputStream oos;
-	private JavaGameClientLobby.ListenNetwork net;
 	
 	private JButton roomBtn;
 
@@ -114,11 +105,15 @@ public class JavaGameClientRoom extends JFrame {
 	private String secretResult;
 	public JTextPane textArea;
 	
+	public JavaGameClientLobby gameLobby;
+	public JavaGameClientView view;
+	
 	/**
 	 * Create the frame.
 	 * @throws BadLocationException 
 	 */
-	public JavaGameClientRoom(Socket Socket, ObjectOutputStream OOS, ObjectInputStream OIS, JavaGameClientLobby.ListenNetwork NET, String username, String ip_addr, String port_no)  {
+	public JavaGameClientRoom(String username, JavaGameClientLobby lobby)  {
+		gameLobby = lobby;
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 375, 426);
@@ -245,29 +240,6 @@ public class JavaGameClientRoom extends JFrame {
 		pwText.setColumns(10);
 		pwText.setBounds(111, 172, 174, 30);
 		
-		Ip_Addr = ip_addr;
-		Port_No = port_no;
-		UserName = username;
-		net = NET;
-
-		try {
-			socket = Socket;
-//			is = socket.getInputStream();
-//			dis = new DataInputStream(is);
-//			os = socket.getOutputStream();
-//			dos = new DataOutputStream(os);
-
-			oos = OOS;
-			oos.flush();
-			ois = OIS;
-
-//			net.start();
-
-		} catch (NumberFormatException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		goLobby action = new goLobby();
 		cancelBtn.addActionListener(action);
 		
@@ -335,77 +307,25 @@ public class JavaGameClientRoom extends JFrame {
 //				bb = MakePacket(msg);
 //				dos.write(bb, 0, bb.length);
 				ChatMsg obcm = new ChatMsg(UserName, "200", msg);
-				oos.writeObject(obcm);
+				gameLobby.oos.writeObject(obcm);
 			} catch (IOException e1) {
 				// AppendText("dos.write() error");
 				try {
 //					dos.close();
 //					dis.close();
-					ois.close();
-					oos.close();
-					socket.close();
+					gameLobby.ois.close();
+					gameLobby.oos.close();
+					gameLobby.socket.close();
 				} catch (IOException e11) {
 					// TODO Auto-generated catch block
 					e11.printStackTrace();
 					System.exit(0);
 				}
 			}
-			JavaGameClientView view = new JavaGameClientView(UserName, socket, oos, ois, net, roomNameText);
+			//JavaGameClientView view = new JavaGameClientView(UserName, socket, oos, ois, net, roomNameText);
 			//JavaGameClientLobby lobby = new JavaGameClientLobby(UserName, Ip_Addr, Port_No);
-			JavaGameClientLobby.textArea = view.getViewTextArea();
+			view = new JavaGameClientView(UserName, roomNameText, gameLobby);
 			setVisible(false);
-		}
-	}
-
-	// Windows 처럼 message 제외한 나머지 부분은 NULL 로 만들기 위한 함수
-	public byte[] MakePacket(String msg) {
-		byte[] packet = new byte[BUF_LEN];
-		byte[] bb = null;
-		int i;
-		for (i = 0; i < BUF_LEN; i++)
-			packet[i] = 0;
-		try {
-			bb = msg.getBytes("euc-kr");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.exit(0);
-		}
-		for (i = 0; i < bb.length; i++)
-			packet[i] = bb[i];
-		return packet;
-	}
-
-	// Server에게 network으로 전송
-	public void SendMessage(String msg) {
-		try {
-			// dos.writeUTF(msg);
-//			byte[] bb;
-//			bb = MakePacket(msg);
-//			dos.write(bb, 0, bb.length);
-			ChatMsg obcm = new ChatMsg(UserName, "300", msg);
-			oos.writeObject(obcm);
-		} catch (IOException e) {
-			// AppendText("dos.write() error");
-			try {
-//				dos.close();
-//				dis.close();
-				ois.close();
-				oos.close();
-				socket.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				System.exit(0);
-			}
-		}
-	}
-
-	public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
-		try {
-			oos.writeObject(ob);
-		} catch (IOException e) {
-			// textArea.append("메세지 송신 에러!!\n");
 		}
 	}
 }
