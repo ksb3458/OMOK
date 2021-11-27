@@ -377,11 +377,9 @@ public class JavaGameServer extends JFrame {
 					}
 					
 					else if (cm.code.matches("201")) {
-						int getNum = Integer.parseInt(cm.data);
-						
+						int getNum = Integer.parseInt(cm.data);			
 						for (int i = 0; i < user_vc.size(); i++) {
-							UserService user = (UserService) user_vc.elementAt(i);
-							
+							UserService user = (UserService) user_vc.elementAt(i);							
 							if(user.UserName.equals(cm.UserName)) {
 								user.opPlayer = room[getNum];
 							}
@@ -402,15 +400,32 @@ public class JavaGameServer extends JFrame {
 						for (int i = 0; i < user_vc.size(); i++) {
 							UserService user = (UserService) user_vc.elementAt(i);
 							if (user.UserName.matches(opPlayer)) {
-									user.WritePrivate(cm.data + "\n");
-									break;
+								user.WritePrivate(cm.data + "\n");
+								break;
 							}
 						}
 					}
 					
 					else if (cm.code.matches("400")) {
-						System.out.println(cm.data);
 						msg = String.format("%s %s", opPlayer, cm.data);
+						cm.data = msg;
+						WriteAllObject(cm);
+					}
+					
+					else if (cm.code.matches("401")) {
+						msg = opPlayer;
+						cm.data = msg;
+						WriteAllObject(cm);
+					}
+					
+					else if (cm.code.matches("401Y")) {
+						msg = String.format("%s %s", opPlayer, cm.data);
+						cm.data = msg;
+						WriteAllObject(cm);
+					}
+					
+					else if (cm.code.matches("401N")) {
+						msg = opPlayer;
 						cm.data = msg;
 						WriteAllObject(cm);
 					}

@@ -165,9 +165,6 @@ public class JavaGameClientLobby extends JFrame {
 	{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//JavaGameClientView view = new JavaGameClientView(username, ip_addr, port_no);
-			//JavaGameClientRoom view = new JavaGameClientRoom(socket, oos, ois, net, UserName, Ip_Addr, Port_No);
-			//setVisible(false);
 			gameRoom = new JavaGameClientRoom(UserName, lobby);
 			setVisible(false);
 		}
@@ -221,17 +218,27 @@ public class JavaGameClientLobby extends JFrame {
 						panel.repaint();
 						break;
 					
+						
 					case "201":
 						if (view == null) {
-							view = gameRoom.view;
+							try{
+								view = gameRoom.view;
+							}catch(NullPointerException e){
+							   break;
+							}			
 						}
 						if (cm.data.equals(UserName))
 							view.myTurn = 1;
 						break;
 						
+						
 					case "300": // chat message
 						if (view == null) {
-							view = gameRoom.view;
+							try{
+								view = gameRoom.view;
+							}catch(NullPointerException e){
+							   break;
+							}			
 						}
 						if (cm.UserName.equals(UserName))
 							view.AppendTextR(msg); // 내 메세지는 우측에
@@ -239,9 +246,14 @@ public class JavaGameClientLobby extends JFrame {
 							view.AppendText(msg);
 						break;
 						
+						
 					case "301":
 						if (view == null) {
-							view = gameRoom.view;
+							try{
+								view = gameRoom.view;
+							}catch(NullPointerException e){
+							   break;
+							}			
 						}
 						if (cm.UserName.equals(UserName))
 							view.AppendTextR("[" + cm.UserName + "]");
@@ -252,19 +264,83 @@ public class JavaGameClientLobby extends JFrame {
 						view.AppendImage(view.img);
 						break;
 						
-					case "400": // chat message
-						if (view == null) {
-							view = gameRoom.view;
-						}
 						
+					case "400":
+						if (view == null) {
+							try{
+								view = gameRoom.view;
+							}catch(NullPointerException e){
+							   break;
+							}			
+						}						
 						String[] args400 = cm.data.split(" ");
 						String opPlayer = args400[0];
 						int x = Integer.parseInt(args400[1]);
 						int y = Integer.parseInt(args400[2]);
+						String record = String.format("%s %s", args400[1], args400[2]);
 						
 						if(opPlayer.matches(UserName)) {
 							view.map[x][y] = 2;
 							view.myTurn = 1;
+							for(int i=0; i<view.recordStone.length; i++) {
+								if(view.recordStone[i].equals("0")) {
+									view.recordStone[i] = record;
+									break;
+								}
+							}
+						}
+						break;
+						
+						
+					case "401":
+						if (view == null) {
+							try{
+								view = gameRoom.view;
+							}catch(NullPointerException e){
+							   break;
+							}			
+						}						
+						
+						if(cm.data.matches(UserName)) {
+							view.ShowBackRequest();
+						}
+						break;
+						
+						
+					case "401Y":
+						if (view == null) {
+							try{
+								view = gameRoom.view;
+							}catch(NullPointerException e){
+							   break;
+							}			
+						}
+						String[] args401 = cm.data.split(" ");
+						int num = Integer.parseInt(args401[1]);
+						int stoneX = Integer.parseInt(args401[2]);
+						int stoneY = Integer.parseInt(args401[3]);
+						String answerY = "상대방이 무르기 요청을 수락하였습니다.";
+						if(args401[0].matches(UserName)) {
+							view.ShowBackAnswer(answerY);
+							view.map[stoneX][stoneY] = 0;
+							view.recordStone[num] = "0";
+						}
+						else if(cm.UserName.matches(UserName)) {
+							view.myTurn = 1;
+						}
+						break;
+						
+					case "401N":
+						if (view == null) {
+							try{
+								view = gameRoom.view;
+							}catch(NullPointerException e){
+							   break;
+							}			
+						}
+						String answerN = "상대방이 무르기 요청을 거부하였습니다.";
+						if(cm.data.matches(UserName)) {
+							view.ShowBackAnswer(answerN);
 						}
 						break;
 					}

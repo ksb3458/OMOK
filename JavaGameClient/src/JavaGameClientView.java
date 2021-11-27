@@ -47,6 +47,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.JToggleButton;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+
 import java.awt.Canvas;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
@@ -64,6 +66,7 @@ public class JavaGameClientView extends JFrame {
 	private JButton btnSend;
 	public int[][] map = new int[20][20];
 	public int myTurn = 0;
+	public String[] recordStone = new String[400];
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	private JLabel lblUserName;
@@ -151,10 +154,10 @@ public class JavaGameClientView extends JFrame {
 		panel.setBounds(10, 10, 560, 560);
 		contentPane.add(panel);
 		
-		JButton btnNewButton_1 = new JButton("무 르 기");
-		btnNewButton_1.setFont(new Font("굴림", Font.PLAIN, 14));
-		btnNewButton_1.setBounds(581, 530, 144, 40);
-		contentPane.add(btnNewButton_1);
+		JButton btnBack = new JButton("무 르 기  요 청");
+		btnBack.setFont(new Font("굴림", Font.PLAIN, 14));
+		btnBack.setBounds(581, 530, 144, 40);
+		contentPane.add(btnBack);
 		
 		faceBtn1 = new JButton(faceIcon1);
 		faceBtn1.setFont(new Font("굴림", Font.PLAIN, 14));
@@ -197,6 +200,8 @@ public class JavaGameClientView extends JFrame {
 			faceBtn2.addActionListener(action2);
 			faceBtn3.addActionListener(action2);
 			faceBtn4.addActionListener(action2);
+			BackStoneAction action3 = new BackStoneAction();
+			btnBack.addActionListener(action3);
 			panel.addMouseListener(new gameTurn());
 
 		} catch (NumberFormatException e) {
@@ -258,8 +263,8 @@ public class JavaGameClientView extends JFrame {
 	}
 	
 	public void putStone(Graphics g) {
-		for (int i=0; i<20; i++) {
-			for(int j=0; j<20; j++) {
+		for (int i=0; i<map.length; i++) {
+			for(int j=0; j<map[i].length; j++) {
 				if(map[i][j] == 1) {
 					g.drawImage(white.getImage(), i*30, j*30, white.getIconWidth(), white.getIconHeight(), panel);
 				}
@@ -275,7 +280,7 @@ public class JavaGameClientView extends JFrame {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if(myTurn == 1) {
-				System.out.println("x : "+e.getX()+", y : "+e.getY());
+				//System.out.println("x : "+e.getX()+", y : "+e.getY());
 				int x = e.getX();
 				int y = e.getY();
 				if(map[x/30][y/30] != 0) {
@@ -283,38 +288,64 @@ public class JavaGameClientView extends JFrame {
 				}
 				map[x/30][y/30] = 1;
 				myTurn = 0;
-				
 				String location = String.format("%d %d", x/30, y/30);
+				for(int i=0; i<recordStone.length; i++) {
+					if(recordStone[i].equals("0")) {
+						recordStone[i] = location;
+						break;
+					}
+				}
 				ChatMsg msg = new ChatMsg(UserName, "400", location);
 				gameLobby.SendObject(msg);
 			}
 		}
 
-		@Override
-		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void mousePressed(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
 	}
 
+	class BackStoneAction implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(myTurn == 1) {
+				ChatMsg msg = new ChatMsg(UserName, "401", "Request Back");
+				gameLobby.SendObject(msg);
+			}
+		}
+	}
+	
+	public void ShowBackRequest() {
+		int result = JOptionPane.showConfirmDialog(contentPane, "상대방이 무르기를 요청하였습니다.\n 무르시겠습니까?", "무르기 요청", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+		if(result == JOptionPane.CLOSED_OPTION || result == JOptionPane.NO_OPTION) {
+			ChatMsg msg = new ChatMsg(UserName, "401N", "Request Back NO");
+			gameLobby.SendObject(msg);
+		}
+		else if(result == JOptionPane.YES_OPTION) {
+			int num = 0;
+			for(int i=0; i<recordStone.length; i++) {
+				if(recordStone[i].equals("0")) {
+					num = i - 1;
+					break;
+				}
+			}
+			String[] stone = recordStone[num].split(" ");
+			int stoneX = Integer.parseInt(stone[0]);
+			int stoneY = Integer.parseInt(stone[1]);
+			map[stoneX][stoneY] = 0;
+			recordStone[num] = "0";
+			String sendMsg = String.format("%d %d %d", num, stoneX, stoneY);
+			ChatMsg msg = new ChatMsg(UserName, "401Y", sendMsg);
+			gameLobby.SendObject(msg);
+			myTurn = 0;
+		}
+	}
+	
+	public void ShowBackAnswer(String answer) {
+		JOptionPane.showMessageDialog(contentPane, answer, "무르기 요청", JOptionPane.PLAIN_MESSAGE);
+	}
+	
 	ImageIcon icon1 = new ImageIcon("src/icon1.jpg");
 	private JButton faceBtn1;
 	private JButton faceBtn2;
@@ -405,12 +436,14 @@ public class JavaGameClientView extends JFrame {
 	}
 	
 	public void playGame() {
-		for(int i=0; i<20; i++) {
-			for(int j=0; j<20; j++) {
+		for(int i=0; i<map.length; i++) {
+			for(int j=0; j<map[i].length; j++) {
 				map[i][j] = 0;
 			}
 		}
+		
+		for(int i=0; i<recordStone.length; i++) {
+			recordStone[i] = "0";
+		}
 	}
-	
-	
 }
