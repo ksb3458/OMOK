@@ -219,8 +219,14 @@ public class JavaGameClientLobby extends JFrame {
 						roomHeight += 120;
 						panel.add(newPane);
 						panel.repaint();
+						break;
 					
 					case "201":
+						if (view == null) {
+							view = gameRoom.view;
+						}
+						if (cm.data.equals(UserName))
+							view.myTurn = 1;
 						break;
 						
 					case "300": // chat message
@@ -244,6 +250,22 @@ public class JavaGameClientLobby extends JFrame {
 							view.AppendText("[" + cm.UserName + "]");
 							//AppendText(" ");
 						view.AppendImage(view.img);
+						break;
+						
+					case "400": // chat message
+						if (view == null) {
+							view = gameRoom.view;
+						}
+						
+						String[] args400 = cm.data.split(" ");
+						String opPlayer = args400[0];
+						int x = Integer.parseInt(args400[1]);
+						int y = Integer.parseInt(args400[2]);
+						
+						if(opPlayer.matches(UserName)) {
+							view.map[x][y] = 2;
+							view.myTurn = 1;
+						}
 						break;
 					}
 				} catch (IOException e) {
@@ -276,6 +298,8 @@ public class JavaGameClientLobby extends JFrame {
 			}
 			System.out.println(roomID);
 			
+			view = new JavaGameClientView(UserName, roomNameText, lobby);
+			setVisible(false);
 			try {
 				ChatMsg obcm = new ChatMsg(UserName, "201", Integer.toString(roomID));
 				oos.writeObject(obcm);
@@ -291,8 +315,6 @@ public class JavaGameClientLobby extends JFrame {
 					System.exit(0);
 				}
 			}		
-			view = new JavaGameClientView(UserName, roomNameText, lobby);
-			setVisible(false);
 		}
 	}
 

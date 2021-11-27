@@ -62,8 +62,8 @@ public class JavaGameClientView extends JFrame {
 	private JTextField txtInput;
 	private String UserName;
 	private JButton btnSend;
-	private int[][] map = new int[20][20];
-	private int x = 0, y = 0;
+	public int[][] map = new int[20][20];
+	public int myTurn = 0;
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	private JLabel lblUserName;
@@ -274,10 +274,20 @@ public class JavaGameClientView extends JFrame {
 	class gameTurn implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			System.out.println("x : "+e.getX()+", y : "+e.getY());
-			x = e.getX();
-			y = e.getY();
-			map[x/30][y/30] = 1;
+			if(myTurn == 1) {
+				System.out.println("x : "+e.getX()+", y : "+e.getY());
+				int x = e.getX();
+				int y = e.getY();
+				if(map[x/30][y/30] != 0) {
+					return;
+				}
+				map[x/30][y/30] = 1;
+				myTurn = 0;
+				
+				String location = String.format("%d %d", x/30, y/30);
+				ChatMsg msg = new ChatMsg(UserName, "400", location);
+				gameLobby.SendObject(msg);
+			}
 		}
 
 		@Override

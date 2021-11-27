@@ -390,6 +390,9 @@ public class JavaGameServer extends JFrame {
 							
 							System.out.println("UserName : " + user.UserName + ", opPlayer : " + user.opPlayer);
 						}
+						
+						cm.data = opPlayer;
+						WriteAllObject(cm);
 					}
 					
 					else if (cm.code.matches("300")) {
@@ -403,6 +406,13 @@ public class JavaGameServer extends JFrame {
 									break;
 							}
 						}
+					}
+					
+					else if (cm.code.matches("400")) {
+						System.out.println(cm.data);
+						msg = String.format("%s %s", opPlayer, cm.data);
+						cm.data = msg;
+						WriteAllObject(cm);
 					}
 					
 					else if (cm.code.matches("500")) { // logout message 처리
