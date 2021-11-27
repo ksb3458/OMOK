@@ -79,9 +79,6 @@ public class JavaGameClientView extends JFrame {
 	ImageIcon faceIcon4 = new ImageIcon("icon/angry.png");
 	ImageIcon board = new ImageIcon("src/board.png");
 	
-	ImageIcon black = new ImageIcon("icon/black-go-stone24.png");
-	ImageIcon white = new ImageIcon("icon/white-go-stone24.png");
-	
 	/**
 	 * Create the frame.
 	 * @throws BadLocationException 
@@ -258,16 +255,9 @@ public class JavaGameClientView extends JFrame {
 	}
 	
 	public void putStone(Graphics g) {
-		for (int i=0; i<20; i++) {
-			for(int j=0; j<20; j++) {
-				if(map[i][j] == 1) {
-					g.drawImage(white.getImage(), i*30, j*30, white.getIconWidth(), white.getIconHeight(), panel);
-				}
-				else if(map[i][j] == 2) {
-					g.drawImage(black.getImage(), i*30, j*30, black.getIconWidth(), black.getIconHeight(), panel);
-				}
-			}
-		}
+		ImageIcon black = new ImageIcon("icon/black-go-stone24.png");
+		g.drawImage(black.getImage(), x, y, black.getIconWidth(), black.getIconHeight(), panel);
+		//g.drawImage(black.getImage(), 0, 0, panel.getWidth(), panel.getHeight(), panel);
 		panel.repaint();
 	}
 	
@@ -277,7 +267,6 @@ public class JavaGameClientView extends JFrame {
 			System.out.println("x : "+e.getX()+", y : "+e.getY());
 			x = e.getX();
 			y = e.getY();
-			map[x/30][y/30] = 1;
 		}
 
 		@Override

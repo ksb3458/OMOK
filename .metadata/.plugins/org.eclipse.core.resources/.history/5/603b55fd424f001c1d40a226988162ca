@@ -63,12 +63,12 @@ public class JavaGameClientView extends JFrame {
 	private String UserName;
 	private JButton btnSend;
 	private int[][] map = new int[20][20];
-	private int x = 0, y = 0;
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	private JLabel lblUserName;
 	public JTextPane textArea;
 	public JavaGameClientLobby gameLobby;
+	private Graphics g;
 
 	JPanel panel;
 	public ImageIcon img;
@@ -78,9 +78,6 @@ public class JavaGameClientView extends JFrame {
 	ImageIcon faceIcon3 = new ImageIcon("icon/sp.png");
 	ImageIcon faceIcon4 = new ImageIcon("icon/angry.png");
 	ImageIcon board = new ImageIcon("src/board.png");
-	
-	ImageIcon black = new ImageIcon("icon/black-go-stone24.png");
-	ImageIcon white = new ImageIcon("icon/white-go-stone24.png");
 	
 	/**
 	 * Create the frame.
@@ -140,15 +137,15 @@ public class JavaGameClientView extends JFrame {
 		contentPane.add(btnNewButton);
 		
 		panel = new JPanel() {
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
+			public void paintComponent(g) {
 				g.drawImage(board.getImage(), 0, 0, panel.getWidth(), panel.getHeight(), panel);
 				setOpaque(false);
-				putStone(g);
+				super.paintComponent(g);
 			}
 		};		
 		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel.setBounds(10, 10, 560, 560);
+		panel.addMouseListener(new gameTurn());
 		contentPane.add(panel);
 		
 		JButton btnNewButton_1 = new JButton("무 르 기");
@@ -197,7 +194,6 @@ public class JavaGameClientView extends JFrame {
 			faceBtn2.addActionListener(action2);
 			faceBtn3.addActionListener(action2);
 			faceBtn4.addActionListener(action2);
-			panel.addMouseListener(new gameTurn());
 
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
@@ -257,27 +253,14 @@ public class JavaGameClientView extends JFrame {
 		}
 	}
 	
-	public void putStone(Graphics g) {
-		for (int i=0; i<20; i++) {
-			for(int j=0; j<20; j++) {
-				if(map[i][j] == 1) {
-					g.drawImage(white.getImage(), i*30, j*30, white.getIconWidth(), white.getIconHeight(), panel);
-				}
-				else if(map[i][j] == 2) {
-					g.drawImage(black.getImage(), i*30, j*30, black.getIconWidth(), black.getIconHeight(), panel);
-				}
-			}
-		}
-		panel.repaint();
-	}
-	
 	class gameTurn implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			System.out.println("x : "+e.getX()+", y : "+e.getY());
-			x = e.getX();
-			y = e.getY();
-			map[x/30][y/30] = 1;
+			ImageIcon black = new ImageIcon("icon/black-go-stone16.png");
+			//g.drawImage(board.getImage(), 0, 0, panel.getWidth(), panel.getHeight(), panel);
+			g.drawImage(black.getImage(), e.getX(), e.getY(), black.getIconWidth(), black.getIconHeight(), panel);
+			panel.repaint();
 		}
 
 		@Override

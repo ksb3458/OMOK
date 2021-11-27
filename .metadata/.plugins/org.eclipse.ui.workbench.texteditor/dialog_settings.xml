@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="201"/>
+		<item key="selection" value="Mouse"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="mouse"/>
+			<item value="grap"/>
+			<item value="image"/>
 			<item value="201"/>
 			<item value="manage"/>
 			<item value="301"/>
@@ -20,9 +23,6 @@
 			<item value="JavaGameClientView(UserName"/>
 			<item value="javagame"/>
 			<item value="J"/>
-			<item value="ois.readObject() error"/>
-			<item value="room"/>
-			<item value="socket"/>
 		</list>
 		<list key="replacehistory">
 		</list>

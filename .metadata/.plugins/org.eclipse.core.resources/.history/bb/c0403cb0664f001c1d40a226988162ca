@@ -261,7 +261,7 @@ public class JavaGameClientView extends JFrame {
 		for (int i=0; i<20; i++) {
 			for(int j=0; j<20; j++) {
 				if(map[i][j] == 1) {
-					g.drawImage(white.getImage(), i*30, j*30, white.getIconWidth(), white.getIconHeight(), panel);
+					g.drawImage(white.getImage(), i*30, j*30, black.getIconWidth(), black.getIconHeight(), panel);
 				}
 				else if(map[i][j] == 2) {
 					g.drawImage(black.getImage(), i*30, j*30, black.getIconWidth(), black.getIconHeight(), panel);
