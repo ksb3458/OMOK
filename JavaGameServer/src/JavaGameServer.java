@@ -142,10 +142,6 @@ public class JavaGameServer extends JFrame {
 		textArea.append("data = " + msg.data + "\n");
 		textArea.setCaretPosition(textArea.getText().length());
 	}
-	
-	public void manageRoom() {
-		
-	}
 
 	// User 당 생성되는 Thread
 	// Read One 에서 대기 -> Write All
@@ -163,6 +159,7 @@ public class JavaGameServer extends JFrame {
 		public String opPlayer = "";
 		public String UserName = "";
 		public String UserStatus;
+		public String roomNameText, lookResult, secretResult, password;  
 
 		public UserService(Socket client_socket) {
 			// TODO Auto-generated constructor stub
@@ -325,24 +322,6 @@ public class JavaGameServer extends JFrame {
 		public void run() {
 			while (true) { // 사용자 접속을 계속해서 받기 위해 while문
 				try {
-					// String msg = dis.readUTF();
-//					byte[] b = new byte[BUF_LEN];
-//					int ret;
-//					ret = dis.read(b);
-//					if (ret < 0) {
-//						AppendText("dis.read() < 0 error");
-//						try {
-//							dos.close();
-//							dis.close();
-//							client_socket.close();
-//							Logout();
-//							break;
-//						} catch (Exception ee) {
-//							break;
-//						} // catch문 끝
-//					}
-//					String msg = new String(b, "euc-kr");
-//					msg = msg.trim(); // 앞뒤 blank NULL, \n 모두 제거
 					Object obcm = null;
 					String msg = null;
 					ChatMsg cm = null;
@@ -368,7 +347,16 @@ public class JavaGameServer extends JFrame {
 						Login();
 					}
 					
-					else if (cm.code.matches("200")) {				
+					else if (cm.code.matches("200")) {
+						String[] args = cm.data.split(" ");
+						roomNameText = args[0];
+						lookResult = args[1];
+						secretResult = args[2];
+						if(secretResult.matches("Y"))
+							password = args[3];
+						else
+							password = null;
+						
 						msg = String.format("%d %s", roomID, cm.data);
 						cm.data = msg;
 						room[roomID] = cm.UserName;
@@ -377,26 +365,38 @@ public class JavaGameServer extends JFrame {
 					}
 					
 					else if (cm.code.matches("201")) {
+						String pw = null;
 						int getNum = Integer.parseInt(cm.data);			
 						for (int i = 0; i < user_vc.size(); i++) {
 							UserService user = (UserService) user_vc.elementAt(i);							
 							if(user.UserName.equals(cm.UserName)) {
 								user.opPlayer = room[getNum];
 							}
-							else if(user.UserName.equals(room[getNum]))
+							else if(user.UserName.equals(room[getNum])) {			
 								user.opPlayer = cm.UserName;
-							
-							System.out.println("UserName : " + user.UserName + ", opPlayer : " + user.opPlayer);
+								if(user.secretResult.matches("Y")) {
+									pw = user.password;
+								}
+							}
+							//System.out.println("UserName : " + user.UserName + ", opPlayer : " + user.opPlayer);
+						}
+						System.out.println("pw : " + pw);
+						if(pw != null) {
+							cm.data = String.format("%s %s", opPlayer, pw);
+							cm.code = "202";
+							WriteAllObject(cm);
 						}
 						
-						cm.data = opPlayer;
-						WriteAllObject(cm);
+						else {
+							cm.data = opPlayer;
+							WriteAllObject(cm);
+						}
 					}
 					
 					else if (cm.code.matches("300")) {
 						msg = String.format("[%s] %s", cm.UserName, cm.data);
 						AppendText(msg); // server 화면에 출력
-						System.out.println(UserName + opPlayer);
+						
 						for (int i = 0; i < user_vc.size(); i++) {
 							UserService user = (UserService) user_vc.elementAt(i);
 							if (user.UserName.matches(opPlayer)) {

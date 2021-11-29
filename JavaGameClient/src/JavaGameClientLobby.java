@@ -59,6 +59,7 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTMLDocument.Iterator;
 import javax.swing.JLayeredPane;
 import javax.swing.BoxLayout;
+import javax.swing.JOptionPane;
 
 public class JavaGameClientLobby extends JFrame {
 	/**
@@ -70,7 +71,7 @@ public class JavaGameClientLobby extends JFrame {
 	private String UserName;
 	private String Ip_Addr;
 	private String Port_No;
-	
+
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 	public Socket socket; // 연결소켓
 	private InputStream is;
@@ -84,24 +85,25 @@ public class JavaGameClientLobby extends JFrame {
 
 	private JLabel lblUserName;
 	private JButton roomBtn;
-	
+
 	private String password;
 	private String roomNameText;
 	private String lookResult;
 	private String secretResult;
-	
+
 	public JTextPane textArea;
 	private int roomHeight = 5;
 	public JavaGameClientLobby lobby;
 	public JavaGameClientView view;
 	public JavaGameClientRoom gameRoom;
 	public JButton[] btnlist = new JButton[999];
-	
+
 	/**
 	 * Create the frame.
-	 * @throws BadLocationException 
+	 * 
+	 * @throws BadLocationException
 	 */
-	public JavaGameClientLobby(String username, String ip_addr, String port_no)  {
+	public JavaGameClientLobby(String username, String ip_addr, String port_no) {
 		lobby = this;
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -119,16 +121,16 @@ public class JavaGameClientLobby extends JFrame {
 		lblUserName.setBounds(12, 23, 68, 40);
 		contentPane.add(lblUserName);
 		setVisible(true);
-		
+
 		Ip_Addr = ip_addr;
 		Port_No = port_no;
 		UserName = username;
 		lblUserName.setText(username);
-		
+
 		JButton roomBtn = new JButton("방 만들기");
 		roomBtn.setBounds(303, 23, 100, 40);
 		contentPane.add(roomBtn);
-		
+
 		panel = new JScrollPane();
 		panel.setBounds(12, 73, 391, 362);
 		contentPane.add(panel);
@@ -136,7 +138,7 @@ public class JavaGameClientLobby extends JFrame {
 
 		Myaction action = new Myaction();
 		roomBtn.addActionListener(action);
-		
+
 		try {
 			socket = new Socket(ip_addr, Integer.parseInt(port_no));
 //			is = socket.getInputStream();
@@ -160,7 +162,7 @@ public class JavaGameClientLobby extends JFrame {
 			e.printStackTrace();
 		}
 	}
-	
+
 	class Myaction implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
 	{
 		@Override
@@ -169,9 +171,10 @@ public class JavaGameClientLobby extends JFrame {
 			setVisible(false);
 		}
 	}
-	
+
 	// Server Message를 수신해서 화면에 표시
 	class ListenNetwork extends Thread {
+		@SuppressWarnings("unused")
 		public void run() {
 			while (true) {
 				try {
@@ -191,7 +194,7 @@ public class JavaGameClientLobby extends JFrame {
 					if (obcm instanceof ChatMsg) {
 						cm = (ChatMsg) obcm;
 						msg = String.format("[%s]\n%s", cm.UserName, cm.data);
-						//msg = String.format("\n%s", cm.data);
+						// msg = String.format("\n%s", cm.data);
 					} else
 						continue;
 					switch (cm.code) {
@@ -201,12 +204,13 @@ public class JavaGameClientLobby extends JFrame {
 						roomNameText = args[1];
 						lookResult = args[2];
 						secretResult = args[3];
-						if(secretResult == "Y")
+						if (secretResult == "Y")
 							password = args[4];
 						else
 							password = null;
 
-						GameRoom room = new GameRoom(roomID, cm.UserName, roomNameText, lookResult, secretResult, password);
+						GameRoom room = new GameRoom(roomID, cm.UserName, roomNameText, lookResult, secretResult,
+								password);
 						JPanel newPane = new JPanel();
 						newPane = room.getPanel();
 						newPane.setBounds(5, roomHeight, 380, 100);
@@ -217,129 +221,170 @@ public class JavaGameClientLobby extends JFrame {
 						panel.add(newPane);
 						panel.repaint();
 						break;
-					
-						
+
 					case "201":
-						if (view == null) {
-							try{
-								view = gameRoom.view;
-							}catch(NullPointerException e){
-							   break;
-							}			
+						if (cm.UserName.equals(UserName)) {
+							view = new JavaGameClientView(UserName, roomNameText, lobby);
+							setVisible(false);
 						}
-						if (cm.data.equals(UserName))
+
+						if (view == null) {
+							try {
+								view = gameRoom.view;
+							} catch (NullPointerException e) {
+								break;
+							}
+						}
+
+						if (cm.data.equals(UserName)) {
 							view.myTurn = 1;
+							view.AppendText("[SERVER]");
+							view.AppendText("상대방이 입장하였습니다.\n돌을 놓아주세요.");
+						}
 						break;
+
+					case "202":
+						String[] args202 = cm.data.split(" ");
+						String pw = args202[1];
+						if (cm.UserName.equals(UserName)) {						
+							String checkpw = JOptionPane.showInputDialog("비밀번호를 입력하세요.");
+							System.out.println(checkpw);
+
+							if (checkpw.equals(pw)) {
+								JOptionPane.showInternalMessageDialog(null, "비밀번호가 맞습니다.\n게임을 시작합니다.");
+								if (cm.UserName.equals(UserName)) {
+									view = new JavaGameClientView(UserName, roomNameText, lobby);
+									setVisible(false);
+								}
+							}
+							else if (checkpw == null) {
+								JOptionPane.showInternalMessageDialog(null, "비밀번호 입력을 취소하였습니다."); 
+								break;
+							}
+							else {
+								JOptionPane.showInternalMessageDialog(null, "비밀번호가 아닙니다.");
+								break;
+							}
+						}
 						
-						
+						if (view == null) {
+							try {
+								view = gameRoom.view;
+							} catch (NullPointerException e) {
+								break;
+							}
+						}
+
+						if (args202[0].equals(UserName)) {
+							view.myTurn = 1;
+							view.AppendText("[SERVER]");
+							view.AppendText("상대방이 입장하였습니다.\n돌을 놓아주세요.");
+						}
+						break;
+
 					case "300": // chat message
 						if (view == null) {
-							try{
+							try {
 								view = gameRoom.view;
-							}catch(NullPointerException e){
-							   break;
-							}			
+							} catch (NullPointerException e) {
+								break;
+							}
 						}
 						if (cm.UserName.equals(UserName))
 							view.AppendTextR(msg); // 내 메세지는 우측에
 						else
 							view.AppendText(msg);
 						break;
-						
-						
+
 					case "301":
 						if (view == null) {
-							try{
+							try {
 								view = gameRoom.view;
-							}catch(NullPointerException e){
-							   break;
-							}			
+							} catch (NullPointerException e) {
+								break;
+							}
 						}
 						if (cm.UserName.equals(UserName))
 							view.AppendTextR("[" + cm.UserName + "]");
-							//AppendTextR(" ");
+						// AppendTextR(" ");
 						else
 							view.AppendText("[" + cm.UserName + "]");
-							//AppendText(" ");
+						// AppendText(" ");
 						view.AppendImage(view.img);
 						break;
-						
-						
+
 					case "400":
 						if (view == null) {
-							try{
+							try {
 								view = gameRoom.view;
-							}catch(NullPointerException e){
-							   break;
-							}			
-						}						
+							} catch (NullPointerException e) {
+								break;
+							}
+						}
 						String[] args400 = cm.data.split(" ");
 						String opPlayer = args400[0];
 						int x = Integer.parseInt(args400[1]);
 						int y = Integer.parseInt(args400[2]);
 						String record = String.format("%s %s", args400[1], args400[2]);
-						
-						if(opPlayer.matches(UserName)) {
+
+						if (opPlayer.matches(UserName)) {
 							view.map[x][y] = 2;
 							view.myTurn = 1;
-							for(int i=0; i<view.recordStone.length; i++) {
-								if(view.recordStone[i].equals("0")) {
+							for (int i = 0; i < view.recordStone.length; i++) {
+								if (view.recordStone[i].equals("0")) {
 									view.recordStone[i] = record;
 									break;
 								}
 							}
 						}
 						break;
-						
-						
+
 					case "401":
 						if (view == null) {
-							try{
+							try {
 								view = gameRoom.view;
-							}catch(NullPointerException e){
-							   break;
-							}			
-						}						
-						
-						if(cm.data.matches(UserName)) {
+							} catch (NullPointerException e) {
+								break;
+							}
+						}
+
+						if (cm.data.matches(UserName)) {
 							view.ShowBackRequest();
 						}
 						break;
-						
-						
+
 					case "401Y":
 						if (view == null) {
-							try{
+							try {
 								view = gameRoom.view;
-							}catch(NullPointerException e){
-							   break;
-							}			
+							} catch (NullPointerException e) {
+								break;
+							}
 						}
 						String[] args401 = cm.data.split(" ");
 						int num = Integer.parseInt(args401[1]);
 						int stoneX = Integer.parseInt(args401[2]);
 						int stoneY = Integer.parseInt(args401[3]);
 						String answerY = "상대방이 무르기 요청을 수락하였습니다.";
-						if(args401[0].matches(UserName)) {
+						if (args401[0].matches(UserName)) {
 							view.ShowBackAnswer(answerY);
 							view.map[stoneX][stoneY] = 0;
 							view.recordStone[num] = "0";
-						}
-						else if(cm.UserName.matches(UserName)) {
+						} else if (cm.UserName.matches(UserName)) {
 							view.myTurn = 1;
 						}
 						break;
-						
+
 					case "401N":
 						if (view == null) {
-							try{
+							try {
 								view = gameRoom.view;
-							}catch(NullPointerException e){
-							   break;
-							}			
+							} catch (NullPointerException e) {
+								break;
+							}
 						}
 						String answerN = "상대방이 무르기 요청을 거부하였습니다.";
-						if(cm.data.matches(UserName)) {
+						if (cm.data.matches(UserName)) {
 							view.ShowBackAnswer(answerN);
 						}
 						break;
@@ -361,21 +406,21 @@ public class JavaGameClientLobby extends JFrame {
 			}
 		}
 	}
-	
+
 	class enterRoomAction implements ActionListener// 내부클래스로 액션 이벤트 처리 클래스
 	{
 		public void actionPerformed(ActionEvent e) {
 			int roomID = -1;
-			for(int i = 0; i<btnlist.length; i++) {
-				if(e.getSource() == btnlist[i]) {
+			for (int i = 0; i < btnlist.length; i++) {
+				if (e.getSource() == btnlist[i]) {
 					roomID = i;
 					break;
 				}
 			}
 			System.out.println(roomID);
-			
-			view = new JavaGameClientView(UserName, roomNameText, lobby);
-			setVisible(false);
+
+			// view = new JavaGameClientView(UserName, roomNameText, lobby);
+			// setVisible(false);
 			try {
 				ChatMsg obcm = new ChatMsg(UserName, "201", Integer.toString(roomID));
 				oos.writeObject(obcm);
@@ -390,7 +435,7 @@ public class JavaGameClientLobby extends JFrame {
 					e11.printStackTrace();
 					System.exit(0);
 				}
-			}		
+			}
 		}
 	}
 
@@ -445,7 +490,7 @@ public class JavaGameClientLobby extends JFrame {
 			// textArea.append("메세지 송신 에러!!\n");
 		}
 	}
-	
+
 	// Server에게 network으로 전송
 	public void SendMessage(String msg) {
 		try {

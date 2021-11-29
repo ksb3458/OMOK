@@ -9,6 +9,11 @@
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
 			<item value="201"/>
+			<item value="200"/>
+			<item value="귓속"/>
+			<item value="system"/>
+			<item value="gameroom"/>
+			<item value="room"/>
 			<item value="lobby"/>
 			<item value="mouse"/>
 			<item value="grap"/>
@@ -18,11 +23,6 @@
 			<item value="sendMes"/>
 			<item value="300"/>
 			<item value="appendI"/>
-			<item value="append"/>
-			<item value="javagameclientroom"/>
-			<item value="v"/>
-			<item value="JavaGameClientView(UserName"/>
-			<item value="javagame"/>
 		</list>
 		<list key="replacehistory">
 		</list>
