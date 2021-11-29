@@ -393,6 +393,11 @@ public class JavaGameServer extends JFrame {
 						}
 					}
 					
+					else if (cm.code.matches("202")) {
+						cm.code = "201";
+						WriteAllObject(cm);
+					}
+					
 					else if (cm.code.matches("300")) {
 						msg = String.format("[%s] %s", cm.UserName, cm.data);
 						AppendText(msg); // server 화면에 출력

@@ -246,39 +246,20 @@ public class JavaGameClientLobby extends JFrame {
 					case "202":
 						String[] args202 = cm.data.split(" ");
 						String pw = args202[1];
-						if (cm.UserName.equals(UserName)) {						
-							String checkpw = JOptionPane.showInputDialog("비밀번호를 입력하세요.");
-							System.out.println(checkpw);
 
+						if (cm.UserName.equals(UserName)) {
+							String checkpw = JOptionPane.showInputDialog("비밀번호를 입력하세요.");
 							if (checkpw.equals(pw)) {
 								JOptionPane.showInternalMessageDialog(null, "비밀번호가 맞습니다.\n게임을 시작합니다.");
-								if (cm.UserName.equals(UserName)) {
-									view = new JavaGameClientView(UserName, roomNameText, lobby);
-									setVisible(false);
-								}
-							}
-							else if (checkpw == null) {
-								JOptionPane.showInternalMessageDialog(null, "비밀번호 입력을 취소하였습니다."); 
+								SendMessage("202", args202[0]);
 								break;
-							}
-							else {
+							} else if (checkpw == null) {
+								JOptionPane.showInternalMessageDialog(null, "비밀번호 입력을 취소하였습니다.");
+								break;
+							} else {
 								JOptionPane.showInternalMessageDialog(null, "비밀번호가 아닙니다.");
 								break;
 							}
-						}
-						
-						if (view == null) {
-							try {
-								view = gameRoom.view;
-							} catch (NullPointerException e) {
-								break;
-							}
-						}
-
-						if (args202[0].equals(UserName)) {
-							view.myTurn = 1;
-							view.AppendText("[SERVER]");
-							view.AppendText("상대방이 입장하였습니다.\n돌을 놓아주세요.");
 						}
 						break;
 
