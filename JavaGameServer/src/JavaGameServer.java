@@ -366,6 +366,7 @@ public class JavaGameServer extends JFrame {
 					
 					else if (cm.code.matches("201")) {
 						String pw = null;
+						String roomName = null;
 						int getNum = Integer.parseInt(cm.data);			
 						for (int i = 0; i < user_vc.size(); i++) {
 							UserService user = (UserService) user_vc.elementAt(i);							
@@ -377,18 +378,19 @@ public class JavaGameServer extends JFrame {
 								if(user.secretResult.matches("Y")) {
 									pw = user.password;
 								}
+								roomName = user.roomNameText;
 							}
 							//System.out.println("UserName : " + user.UserName + ", opPlayer : " + user.opPlayer);
 						}
 						System.out.println("pw : " + pw);
 						if(pw != null) {
-							cm.data = String.format("%s %s", opPlayer, pw);
+							cm.data = String.format("%s %s %s", opPlayer, pw, roomName);
 							cm.code = "202";
 							WriteAllObject(cm);
 						}
 						
 						else {
-							cm.data = opPlayer;
+							cm.data = String.format("%s %s", opPlayer, roomName);
 							WriteAllObject(cm);
 						}
 					}

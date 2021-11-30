@@ -223,8 +223,9 @@ public class JavaGameClientLobby extends JFrame {
 						break;
 
 					case "201":
+						String[] args201 = cm.data.split(" ");
 						if (cm.UserName.equals(UserName)) {
-							view = new JavaGameClientView(UserName, roomNameText, lobby);
+							view = new JavaGameClientView(UserName, args201[1], lobby);
 							setVisible(false);
 						}
 
@@ -236,7 +237,7 @@ public class JavaGameClientLobby extends JFrame {
 							}
 						}
 
-						if (cm.data.equals(UserName)) {
+						if (args201[0].equals(UserName)) {
 							view.myTurn = 1;
 							view.AppendText("[SERVER]");
 							view.AppendText("상대방이 입장하였습니다.\n돌을 놓아주세요.");
@@ -251,7 +252,8 @@ public class JavaGameClientLobby extends JFrame {
 							String checkpw = JOptionPane.showInputDialog("비밀번호를 입력하세요.");
 							if (checkpw.equals(pw)) {
 								JOptionPane.showInternalMessageDialog(null, "비밀번호가 맞습니다.\n게임을 시작합니다.");
-								SendMessage("202", args202[0]);
+								String msg202 = String.format("%s %s", args202[0], args202[2]);
+								SendMessage("202", msg202);
 								break;
 							} else if (checkpw == null) {
 								JOptionPane.showInternalMessageDialog(null, "비밀번호 입력을 취소하였습니다.");
