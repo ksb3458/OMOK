@@ -64,9 +64,13 @@ public class JavaGameClientView extends JFrame {
 	private JTextField txtInput;
 	private String UserName;
 	private JButton btnSend;
+	private JButton nextBtn;
+	private JButton previousBtn;
 	public int[][] map = new int[20][20];
 	public int myTurn = 0;
+	public int historyColor = 0;
 	public String[] recordStone = new String[400];
+	private int count, finishNum;
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	private JLabel lblUserName;
@@ -74,6 +78,7 @@ public class JavaGameClientView extends JFrame {
 	public JavaGameClientLobby gameLobby;
 
 	JPanel panel;
+	JPanel panel2;
 	public ImageIcon img;
 	
 	ImageIcon faceIcon1 = new ImageIcon("icon/fun.png");
@@ -98,6 +103,14 @@ public class JavaGameClientView extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+		nextBtn = new JButton(">");
+		nextBtn.setBounds(509, 509, 60, 60);
+		//contentPane.add(nextBtn);
+		
+		previousBtn = new JButton("<");
+		previousBtn.setBounds(11, 509, 60, 60);
+		//contentPane.add(previousBtn);
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(581, 162, 251, 316);
@@ -154,6 +167,17 @@ public class JavaGameClientView extends JFrame {
 		panel.setBounds(10, 10, 560, 560);
 		contentPane.add(panel);
 		
+		panel2 = new JPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				g.drawImage(board.getImage(), 0, 0, panel2.getWidth(), panel2.getHeight(), panel2);
+				setOpaque(false);
+				showHistory(count, g);
+			}
+		};		
+		panel2.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel2.setBounds(10, 10, 560, 560);
+		
 		JButton btnBack = new JButton("무 르 기  요 청");
 		btnBack.setFont(new Font("굴림", Font.PLAIN, 14));
 		btnBack.setBounds(581, 530, 144, 40);
@@ -202,6 +226,10 @@ public class JavaGameClientView extends JFrame {
 			faceBtn4.addActionListener(action2);
 			BackStoneAction action3 = new BackStoneAction();
 			btnBack.addActionListener(action3);
+			showPreHistory action4 = new showPreHistory();
+			previousBtn.addActionListener(action4);
+			showNextHistory action5 = new showNextHistory();
+			nextBtn.addActionListener(action5);
 			panel.addMouseListener(new gameTurn());
 
 		} catch (NumberFormatException e) {
@@ -312,6 +340,52 @@ public class JavaGameClientView extends JFrame {
 		public void mouseEntered(MouseEvent e) {}
 		public void mouseExited(MouseEvent e) {}
 	}
+	
+	class showPreHistory implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			count--;
+			if(count < 0)
+				count = 0;
+		}
+	}
+	
+	class showNextHistory implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			count++;
+			if(count > finishNum)
+				count = finishNum;
+		}
+	}
+	
+	public void showHistory(int cnt, Graphics g) {
+		int recordX = 0, recordY = 0;
+		String[] stone;
+		for(int i=0; i<=cnt; i++) {
+			stone = recordStone[i].split(" ");
+			recordX = Integer.parseInt(stone[0]);
+			recordY = Integer.parseInt(stone[1]);
+			if(historyColor == 1) {
+				if(i % 2 == 0) {
+					g.drawImage(white.getImage(), recordX*30, recordY*30, white.getIconWidth(), white.getIconHeight(), panel2);
+				}
+				else {
+					g.drawImage(black.getImage(), recordX*30, recordY*30, black.getIconWidth(), black.getIconHeight(), panel2);
+				}
+			}
+			
+			else {
+				if(i % 2 == 1) {
+					g.drawImage(white.getImage(), recordX*30, recordY*30, white.getIconWidth(), white.getIconHeight(), panel2);
+				}
+				else {
+					g.drawImage(black.getImage(), recordX*30, recordY*30, black.getIconWidth(), black.getIconHeight(), panel2);
+				}
+			}
+		}
+		panel2.repaint();
+	}
 
 	class BackStoneAction implements ActionListener {
 		@Override
@@ -355,6 +429,19 @@ public class JavaGameClientView extends JFrame {
 	
 	public void ShowResult(String answer) {
 		JOptionPane.showMessageDialog(contentPane, answer, "게임 종료", JOptionPane.PLAIN_MESSAGE);
+		contentPane.add(nextBtn);
+		contentPane.add(previousBtn);
+		for (int i = 0; i<recordStone.length; i++) {
+			if(recordStone[i].equals("0")) {
+				count = i - 1;
+				break;
+			}
+		}
+		//panel2 = panel;
+		panel.setVisible(false);
+		panel.setEnabled(false);
+		contentPane.add(panel2);
+		finishNum = count;
 	}
 	
 	ImageIcon icon1 = new ImageIcon("src/icon1.jpg");

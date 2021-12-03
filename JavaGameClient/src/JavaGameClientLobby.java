@@ -239,6 +239,7 @@ public class JavaGameClientLobby extends JFrame {
 
 						if (args201[0].equals(UserName)) {
 							view.myTurn = 1;
+							view.historyColor = 1;
 							view.AppendText("[SERVER]");
 							view.AppendText("상대방이 입장하였습니다.\n돌을 놓아주세요.");
 						}
