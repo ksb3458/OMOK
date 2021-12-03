@@ -437,6 +437,12 @@ public class JavaGameServer extends JFrame {
 						WriteAllObject(cm);
 					}
 					
+					else if (cm.code.matches("405")) {
+						msg = String.format("%s %s", opPlayer, cm.data);
+						cm.data = msg;
+						WriteAllObject(cm);
+					}
+					
 					else if (cm.code.matches("500")) { // logout message 처리
 						Logout();
 						break;

@@ -371,6 +371,37 @@ public class JavaGameClientLobby extends JFrame {
 							view.ShowBackAnswer(answerN);
 						}
 						break;
+						
+					case "405":
+						if (view == null) {
+							try {
+								view = gameRoom.view;
+							} catch (NullPointerException e) {
+								break;
+							}
+						}
+						String success = "You Win!";
+						String lose = "You lose ..";
+						String[] args405 = cm.data.split(" ");
+						String opPlayer405 = args405[0];
+						int x405 = Integer.parseInt(args405[1]);
+						int y405 = Integer.parseInt(args405[2]);
+						String record405 = String.format("%s %s", args405[1], args405[2]);
+
+						if (opPlayer405.matches(UserName)) {
+							view.map[x405][y405] = 2;
+							for (int i = 0; i < view.recordStone.length; i++) {
+								if (view.recordStone[i].equals("0")) {
+									view.recordStone[i] = record405;
+									break;
+								}
+							}
+							view.ShowResult(lose);
+						}
+						if (cm.UserName.matches(UserName)) {
+							view.ShowResult(success);
+						}						
+						break;
 					}
 				} catch (IOException e) {
 					try {

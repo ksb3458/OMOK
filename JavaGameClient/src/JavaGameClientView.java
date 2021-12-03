@@ -295,8 +295,15 @@ public class JavaGameClientView extends JFrame {
 						break;
 					}
 				}
-				ChatMsg msg = new ChatMsg(UserName, "400", location);
-				gameLobby.SendObject(msg);
+				if(endGame(x/30, y/30)) {
+					System.out.println("승리!");
+					ChatMsg msg = new ChatMsg(UserName, "405", location);
+					gameLobby.SendObject(msg);
+				}					
+				else {
+					ChatMsg msg = new ChatMsg(UserName, "400", location);
+					gameLobby.SendObject(msg);
+				}
 			}
 		}
 
@@ -344,6 +351,10 @@ public class JavaGameClientView extends JFrame {
 	
 	public void ShowBackAnswer(String answer) {
 		JOptionPane.showMessageDialog(contentPane, answer, "무르기 요청", JOptionPane.PLAIN_MESSAGE);
+	}
+	
+	public void ShowResult(String answer) {
+		JOptionPane.showMessageDialog(contentPane, answer, "게임 종료", JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	ImageIcon icon1 = new ImageIcon("src/icon1.jpg");
@@ -445,5 +456,55 @@ public class JavaGameClientView extends JFrame {
 		for(int i=0; i<recordStone.length; i++) {
 			recordStone[i] = "0";
 		}
+	}
+	
+	public boolean endGame(int checkX, int checkY) {
+		int count = 0;
+		int xi = checkX - 4, xj = checkX + 4, yi = checkY - 4, yj = checkY + 4;
+		if(xi < 0) xi = 0;
+		if(yi < 0) yi = 0;
+		if(xj > map.length) xj = map.length;
+		if(yj > map[checkX].length) yj = map[checkX].length;
+		
+		for(int i = xi; i <= xj; i++) {
+			if (map[i][checkY] == 1)
+				count++;
+			else
+				count = 0;
+			if(count >= 5) return true;
+		}
+		count = 0;
+		
+		for(int j = yi; j <= yj; j++) {
+			if (map[checkX][j] == 1)
+				count++;
+			else
+				count = 0;
+			if(count >= 5) return true;
+		}
+		count = 0;
+		
+		for(int i = 0; i <= 8; i++) {
+			if (map[xi + i][yi + i] == 1)
+				count++;
+			else
+				count = 0;
+			if(count >= 5) return true;
+			if(xi + i == xj || yi + i == yj)
+				break;
+		}
+		count = 0;
+		
+		for(int i = 0; i <= 8; i++) {
+			if (map[xi + i][yj - i] == 1)
+				count++;
+			else
+				count = 0;
+			if(count >= 5) return true;
+			if(xi + i == xj || yj - i == yi)
+				break;
+		}
+		return false;
+			
 	}
 }
