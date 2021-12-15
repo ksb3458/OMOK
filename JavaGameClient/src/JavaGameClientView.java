@@ -55,6 +55,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import java.awt.SystemColor;
 
 public class JavaGameClientView extends JFrame {
 	/**
@@ -75,14 +76,28 @@ public class JavaGameClientView extends JFrame {
 	
 	private JLabel timerLabel;
 	private TimerNum timerNum;
-	private boolean timerCheck = false;
 	private JLabel lblUserName;
+	private JLabel lastLabel;
 	public JTextPane textArea;
 	public JavaGameClientLobby gameLobby;
 
 	JPanel panel;
 	JPanel panel2;
-	public ImageIcon img;
+	private ImageIcon img;
+	private ImageIcon icon = new ImageIcon("icon/circle5.png");
+	Image img1 = icon.getImage();
+	Image img2 = img1.getScaledInstance(15, 15, Image.SCALE_SMOOTH);
+	private ImageIcon showLast = new ImageIcon(img2);
+	
+	private ImageIcon icon2 = new ImageIcon("icon/arrow1.png");
+	Image img3 = icon2.getImage();
+	Image img4 = img3.getScaledInstance(45, 45, Image.SCALE_SMOOTH);
+	private ImageIcon arrow1 = new ImageIcon(img4);
+	
+	private ImageIcon icon3 = new ImageIcon("icon/arrow3.png");
+	Image img5 = icon3.getImage();
+	Image img6 = img5.getScaledInstance(45, 45, Image.SCALE_SMOOTH);
+	private ImageIcon arrow3 = new ImageIcon(img6);
 	
 	ImageIcon faceIcon1 = new ImageIcon("icon/fun.png");
 	ImageIcon faceIcon2 = new ImageIcon("icon/cry.png");
@@ -107,12 +122,20 @@ public class JavaGameClientView extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		nextBtn = new JButton(">");
-		nextBtn.setBounds(509, 509, 60, 60);
+		nextBtn = new JButton(arrow1);
+		nextBtn.setBackground(null);
+		nextBtn.setBorderPainted(false);
+		nextBtn.setContentAreaFilled(false);
+		nextBtn.setFocusPainted(false);
+		nextBtn.setBounds(513, 515, 45, 45);
 		//contentPane.add(nextBtn);
 		
-		previousBtn = new JButton("<");
-		previousBtn.setBounds(11, 509, 60, 60);
+		previousBtn = new JButton(arrow3);
+		previousBtn.setBackground(null);
+		previousBtn.setBorderPainted(false);
+		previousBtn.setContentAreaFilled(false);
+		previousBtn.setFocusPainted(false);
+		previousBtn.setBounds(7, 515, 45, 45);
 		//contentPane.add(previousBtn);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -158,6 +181,8 @@ public class JavaGameClientView extends JFrame {
 		btnNewButton.setBounds(727, 530, 106, 40);
 		contentPane.add(btnNewButton);
 		
+		lastLabel = new JLabel(showLast);
+		
 		panel = new JPanel() {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -169,6 +194,7 @@ public class JavaGameClientView extends JFrame {
 		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel.setBounds(10, 10, 560, 560);
 		contentPane.add(panel);
+		panel.add(lastLabel);
 		
 		panel2 = new JPanel() {
 			public void paintComponent(Graphics g) {
@@ -206,10 +232,10 @@ public class JavaGameClientView extends JFrame {
 		faceBtn4.setBounds(772, 96, 60, 60);
 		contentPane.add(faceBtn4);
 		
-		timerLabel = new JLabel("0  :  20");
-		timerLabel.setForeground(Color.BLUE);
+		timerLabel = new JLabel("0  :  10");
+		timerLabel.setForeground(new Color(0x1C84DB));
 		timerLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		timerLabel.setFont(new Font("돋움", Font.BOLD, 33));
+		timerLabel.setFont(new Font("한컴 말랑말랑 Bold", Font.BOLD, 33));
 		timerLabel.setBorder(new LineBorder(new Color(0, 0, 0), 0));
 		timerLabel.setBackground(Color.WHITE);
 		timerLabel.setBounds(581, 26, 144, 60);
@@ -265,27 +291,27 @@ public class JavaGameClientView extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == faceBtn1) {
-				gameLobby.SendMessage("301", "IMG");
+				gameLobby.SendMessage("301", "fun");
 				img = new ImageIcon("icon/fun.png");
 				gameLobby.SendObject(img);
 			}
 			
 			else if(e.getSource() == faceBtn2) {
-				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
+				ChatMsg obcm = new ChatMsg(UserName, "301", "cry");
 				img = new ImageIcon("icon/cry.png");
 				obcm.img = img;
 				gameLobby.SendObject(obcm);
 			}
 			
 			else if(e.getSource() == faceBtn3) {
-				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
+				ChatMsg obcm = new ChatMsg(UserName, "301", "sp");
 				img = new ImageIcon("icon/sp.png");
 				obcm.img = img;
 				gameLobby.SendObject(obcm);
 			}
 			
 			else if(e.getSource() == faceBtn4) {
-				ChatMsg obcm = new ChatMsg(UserName, "301", "IMG");
+				ChatMsg obcm = new ChatMsg(UserName, "301", "angry");
 				img = new ImageIcon("icon/angry.png");
 				obcm.img = img;
 				gameLobby.SendObject(obcm);
@@ -303,6 +329,22 @@ public class JavaGameClientView extends JFrame {
 					g.drawImage(black.getImage(), i*30, j*30, black.getIconWidth(), black.getIconHeight(), panel);
 				}
 			}
+		}
+		int num = 0;
+		if (!recordStone[0].equals("0")) {
+			for (int i = 0; i < recordStone.length; i++) {
+				if (recordStone[i].equals("0")) {
+					num = i - 1;
+					break;
+				}
+			}
+			String info[] = recordStone[num].split(" ");
+			lastLabel.setVisible(true);
+			lastLabel.setLocation(Integer.parseInt(info[0]) * 30 + 4, Integer.parseInt(info[1]) * 30 + 4);
+		}
+		
+		else {
+			lastLabel.setVisible(false);
 		}
 		panel.repaint();
 	}
@@ -464,7 +506,6 @@ public class JavaGameClientView extends JFrame {
 		finishNum = count;
 	}
 	
-	ImageIcon icon1 = new ImageIcon("src/icon1.jpg");
 	private JButton faceBtn1;
 	private JButton faceBtn2;
 	private JButton faceBtn3;
@@ -520,9 +561,10 @@ public class JavaGameClientView extends JFrame {
 		//textArea.replaceSelection("\n");
 	}
 	
-	public void AppendImage(ImageIcon ori_icon) {
+	public void AppendImage(String iconName) {
 		int len = textArea.getDocument().getLength();
 		textArea.setCaretPosition(len); // place caret at the end (with no selection)
+		ImageIcon ori_icon = new ImageIcon("icon/"+iconName+".png");
 		Image ori_img = ori_icon.getImage();
 		Image new_img;
 		ImageIcon new_icon;

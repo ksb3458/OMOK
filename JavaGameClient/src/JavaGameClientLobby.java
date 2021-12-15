@@ -93,6 +93,7 @@ public class JavaGameClientLobby extends JFrame {
 
 	public JTextPane textArea;
 	private int roomHeight = 5;
+	private GameRoom createRoom;
 	public JavaGameClientLobby lobby;
 	public JavaGameClientView view;
 	public JavaGameClientRoom gameRoom;
@@ -128,7 +129,7 @@ public class JavaGameClientLobby extends JFrame {
 		lblUserName.setText(username);
 
 		JButton roomBtn = new JButton("방 만들기");
-		roomBtn.setBounds(303, 23, 100, 40);
+		roomBtn.setBounds(300, 23, 100, 40);
 		contentPane.add(roomBtn);
 
 		panel = new JScrollPane();
@@ -209,15 +210,15 @@ public class JavaGameClientLobby extends JFrame {
 						else
 							password = null;
 
-						GameRoom room = new GameRoom(roomID, cm.UserName, roomNameText, lookResult, secretResult,
+						createRoom = new GameRoom(roomID, cm.UserName, roomNameText, lookResult, secretResult,
 								password);
 						JPanel newPane = new JPanel();
-						newPane = room.getPanel();
-						newPane.setBounds(5, roomHeight, 380, 100);
+						newPane = createRoom.getPanel();
+						newPane.setBounds(5, roomHeight, 381, 75);
 						enterRoomAction action = new enterRoomAction();
-						room.getEnterBtn().addActionListener(action);
-						btnlist[Integer.parseInt(roomID)] = room.getEnterBtn();
-						roomHeight += 120;
+						createRoom.getEnterBtn().addActionListener(action);
+						btnlist[Integer.parseInt(roomID)] = createRoom.getEnterBtn();
+						roomHeight += 80;
 						panel.add(newPane);
 						panel.repaint();
 						break;
@@ -296,7 +297,7 @@ public class JavaGameClientLobby extends JFrame {
 						else
 							view.AppendText("[" + cm.UserName + "]");
 						// AppendText(" ");
-						view.AppendImage(view.img);
+						view.AppendImage(cm.data);
 						break;
 
 					case "400":
@@ -433,6 +434,8 @@ public class JavaGameClientLobby extends JFrame {
 			for (int i = 0; i < btnlist.length; i++) {
 				if (e.getSource() == btnlist[i]) {
 					roomID = i;
+					createRoom.getEnterBtn().setText("관전하기");
+					repaint();
 					break;
 				}
 			}
