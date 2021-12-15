@@ -72,7 +72,10 @@ public class JavaGameClientView extends JFrame {
 	public String[] recordStone = new String[400];
 	private int count, finishNum;
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
-
+	
+	private JLabel timerLabel;
+	private TimerNum timerNum;
+	private boolean timerCheck = false;
 	private JLabel lblUserName;
 	public JTextPane textArea;
 	public JavaGameClientLobby gameLobby;
@@ -203,14 +206,14 @@ public class JavaGameClientView extends JFrame {
 		faceBtn4.setBounds(772, 96, 60, 60);
 		contentPane.add(faceBtn4);
 		
-		JLabel timer = new JLabel("0  :  30");
-		timer.setForeground(Color.BLUE);
-		timer.setHorizontalAlignment(SwingConstants.CENTER);
-		timer.setFont(new Font("돋움", Font.BOLD, 33));
-		timer.setBorder(new LineBorder(new Color(0, 0, 0), 0));
-		timer.setBackground(Color.WHITE);
-		timer.setBounds(581, 26, 144, 60);
-		contentPane.add(timer);
+		timerLabel = new JLabel("0  :  20");
+		timerLabel.setForeground(Color.BLUE);
+		timerLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		timerLabel.setFont(new Font("돋움", Font.BOLD, 33));
+		timerLabel.setBorder(new LineBorder(new Color(0, 0, 0), 0));
+		timerLabel.setBackground(Color.WHITE);
+		timerLabel.setBounds(581, 26, 144, 60);
+		contentPane.add(timerLabel);
 		
 		playGame();
 
@@ -323,6 +326,8 @@ public class JavaGameClientView extends JFrame {
 				
 				map[x/30][y/30] = 1;
 				myTurn = 0;
+				stopTimer();
+				startTimer();
 				String location = String.format("%d %d", x/30, y/30);
 				for(int i=0; i<recordStone.length; i++) {
 					if(recordStone[i].equals("0")) {
@@ -353,8 +358,11 @@ public class JavaGameClientView extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			count--;
-			if(count < 0)
+			nextBtn.setVisible(true);
+			if(count <= 0) {
 				count = 0;
+				previousBtn.setVisible(false);
+			}
 		}
 	}
 	
@@ -362,8 +370,11 @@ public class JavaGameClientView extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			count++;
-			if(count > finishNum)
+			previousBtn.setVisible(true);
+			if(count >= finishNum) {
 				count = finishNum;
+				nextBtn.setVisible(false);
+			}
 		}
 	}
 	
@@ -449,6 +460,7 @@ public class JavaGameClientView extends JFrame {
 		panel.setVisible(false);
 		panel.setEnabled(false);
 		contentPane.add(panel2);
+		nextBtn.setVisible(false);
 		finishNum = count;
 	}
 	
@@ -608,21 +620,19 @@ public class JavaGameClientView extends JFrame {
 		int xi = checkX - 2, xj = checkX + 2, yi = checkY - 2, yj = checkY + 2;
 		if(xi < 0) xi = 0;
 		if(yi < 0) yi = 0;
-		if(xj > map.length) xj = map.length;
-		if(yj > map[checkX].length) yj = map[checkX].length;
+		if(xj > map.length) xj = map.length - 1;
+		if(yj > map[checkX].length) yj = map[checkX].length - 1;
 		
 		while(true) {
 			if(checkX - 1 > 0 && map[checkX - 1][checkY] == 1 && checkX + 1 < map.length && map[checkX + 1][checkY] == 1) {
 				if(checkX - 2 < 0 || map[checkX - 2][checkY] == 2 || checkX + 2 > map.length || map[checkX + 2][checkY] == 2) {
 					break;
-				}
-				
+				}				
 				else {
 					checkNum++;
 					break;
 				}
-			}
-			
+			}			
 			else break;
 		}
 		
@@ -630,14 +640,12 @@ public class JavaGameClientView extends JFrame {
 			if(checkY - 1 > 0 && map[checkX][checkY - 1] == 1 && checkY + 1 < map.length && map[checkX][checkY + 1] == 1) {
 				if(checkY - 2 < 0 || map[checkX][checkY - 2] == 2 || checkY + 2 > map.length || map[checkX][checkY + 2] == 2) {
 					break;
-				}
-				
+				}	
 				else {
 					checkNum++;
 					break;
 				}
-			}	
-			
+			}			
 			else break;
 		}
 		
@@ -645,14 +653,12 @@ public class JavaGameClientView extends JFrame {
 			if(checkY - 1 > 0 && checkX - 1 > 0 && map[checkX - 1][checkY - 1] == 1 && checkY + 1 < map.length && checkX + 1 < map.length && map[checkX + 1][checkY + 1] == 1) {
 				if(checkY - 2 < 0 || checkY - 2 < 0 || map[checkX - 2][checkY - 2] == 2 || checkY + 2 > map.length || checkX + 2 > map.length || map[checkX + 2][checkY + 2] == 2) {
 					break;
-				}
-				
+				}	
 				else {
 					checkNum++;
 					break;
 				}
-			}
-			
+			}			
 			else break;
 		}
 		
@@ -660,14 +666,12 @@ public class JavaGameClientView extends JFrame {
 			if(checkY - 1 > 0 && checkX - 1 > 0 && map[checkX - 1][checkY + 1] == 1 && checkY + 1 < map.length && checkX + 1 < map.length && map[checkX + 1][checkY - 1] == 1) {
 				if(checkY - 2 < 0 || checkY - 2 < 0 || map[checkX - 2][checkY + 2] == 2 || checkY + 2 > map.length || checkX + 2 > map.length || map[checkX + 2][checkY - 2] == 2) {
 					break;
-				}
-				
+				}		
 				else {
 					checkNum++;
 					break;
 				}
-			}
-			
+			}		
 			else break;
 		}
 		
@@ -752,5 +756,76 @@ public class JavaGameClientView extends JFrame {
 			return true;
 		else
 			return false;
+	}
+	
+	public void finishTimer() {
+		while (true) {
+			if (myTurn == 1) {
+				int x = (int) (Math.random() * 20);
+				int y = (int) (Math.random() * 20);
+				System.out.println(x + " " + y);
+				if (map[x][y] == 0) { //&& !endGame(x, y) && !checkThree(x, y)) {
+					map[x][y] = 1;
+					myTurn = 0;
+					String location = String.format("%d %d", x, y);
+					for (int i = 0; i < recordStone.length; i++) {
+						if (recordStone[i].equals("0")) {
+							recordStone[i] = location;
+							break;
+						}
+					}
+					panel.repaint();
+					ChatMsg msg = new ChatMsg(UserName, "400", location);
+					gameLobby.SendObject(msg);
+					startTimer();
+					break;
+				}
+			}		
+			else break;
+		}
+	}
+	
+	class TimerNum extends Thread {
+		private int second;
+		private JLabel timerLabel;
+		private String showSecond;
+
+		public TimerNum(int second, JLabel timerLabel) {
+			this.second = second;
+			this.timerLabel = timerLabel;
+		}
+
+		@Override
+		public void run() {
+			while (true) {
+				if(second % 60 < 10)
+					showSecond = "0" + Integer.toString(second % 60);
+				else
+					showSecond = Integer.toString(second % 60);
+				
+				timerLabel.setText(Integer.toString(second / 60) + "  :  " + showSecond);
+				second--;
+							
+				if(second < 0) {
+					finishTimer();
+					return;
+				}
+				
+				try {
+					sleep(1000);
+				} catch (Exception e) {
+					return;
+				}
+			}
+		}
+	}
+	
+	public void startTimer() {
+		timerNum = new TimerNum(10, timerLabel);
+		timerNum.start();
+	}
+	
+	public void stopTimer() {
+		timerNum.interrupt();
 	}
 }

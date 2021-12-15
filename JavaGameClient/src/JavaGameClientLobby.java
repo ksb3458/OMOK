@@ -227,6 +227,7 @@ public class JavaGameClientLobby extends JFrame {
 						if (cm.UserName.equals(UserName)) {
 							view = new JavaGameClientView(UserName, args201[1], lobby);
 							setVisible(false);
+							view.startTimer();
 						}
 
 						if (view == null) {
@@ -242,6 +243,7 @@ public class JavaGameClientLobby extends JFrame {
 							view.historyColor = 1;
 							view.AppendText("[SERVER]");
 							view.AppendText("상대방이 입장하였습니다.\n돌을 놓아주세요.");
+							view.startTimer();
 						}
 						break;
 
@@ -312,6 +314,8 @@ public class JavaGameClientLobby extends JFrame {
 						String record = String.format("%s %s", args400[1], args400[2]);
 
 						if (opPlayer.matches(UserName)) {
+							view.stopTimer();
+							view.startTimer();
 							view.map[x][y] = 2;
 							view.myTurn = 1;
 							for (int i = 0; i < view.recordStone.length; i++) {
