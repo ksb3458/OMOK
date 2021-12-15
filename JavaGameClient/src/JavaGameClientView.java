@@ -314,6 +314,13 @@ public class JavaGameClientView extends JFrame {
 				if(map[x/30][y/30] != 0) {
 					return;
 				}
+				
+				if(checkThree(x/30, y/30)) {
+					ShowMessage("3*3입니다.\n해당 위치에는 돌을 놓을 수 없습니다.", "3*3 알림");
+					System.out.println("check 3.3");
+					return;
+				}
+				
 				map[x/30][y/30] = 1;
 				myTurn = 0;
 				String location = String.format("%d %d", x/30, y/30);
@@ -323,6 +330,7 @@ public class JavaGameClientView extends JFrame {
 						break;
 					}
 				}
+				
 				if(endGame(x/30, y/30)) {
 					System.out.println("승리!");
 					ChatMsg msg = new ChatMsg(UserName, "405", location);
@@ -423,8 +431,8 @@ public class JavaGameClientView extends JFrame {
 		}
 	}
 	
-	public void ShowBackAnswer(String answer) {
-		JOptionPane.showMessageDialog(contentPane, answer, "무르기 요청", JOptionPane.PLAIN_MESSAGE);
+	public void ShowMessage(String answer, String title) {
+		JOptionPane.showMessageDialog(contentPane, answer, title, JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	public void ShowResult(String answer) {
@@ -550,8 +558,9 @@ public class JavaGameClientView extends JFrame {
 		int xi = checkX - 4, xj = checkX + 4, yi = checkY - 4, yj = checkY + 4;
 		if(xi < 0) xi = 0;
 		if(yi < 0) yi = 0;
-		if(xj > map.length) xj = map.length;
-		if(yj > map[checkX].length) yj = map[checkX].length;
+		if(xj >= map.length) xj = map.length - 1;
+		if(yj >= map[checkX].length) yj = map[checkX].length - 1;
+		
 		
 		for(int i = xi; i <= xj; i++) {
 			if (map[i][checkY] == 1)
@@ -591,7 +600,157 @@ public class JavaGameClientView extends JFrame {
 			if(xi + i == xj || yj - i == yi)
 				break;
 		}
-		return false;
+		return false;		
+	}
+	
+	public boolean checkThree(int checkX, int checkY) {
+		int count = 0, checkNum = 0;
+		int xi = checkX - 2, xj = checkX + 2, yi = checkY - 2, yj = checkY + 2;
+		if(xi < 0) xi = 0;
+		if(yi < 0) yi = 0;
+		if(xj > map.length) xj = map.length;
+		if(yj > map[checkX].length) yj = map[checkX].length;
+		
+		while(true) {
+			if(checkX - 1 > 0 && map[checkX - 1][checkY] == 1 && checkX + 1 < map.length && map[checkX + 1][checkY] == 1) {
+				if(checkX - 2 < 0 || map[checkX - 2][checkY] == 2 || checkX + 2 > map.length || map[checkX + 2][checkY] == 2) {
+					break;
+				}
+				
+				else {
+					checkNum++;
+					break;
+				}
+			}
 			
+			else break;
+		}
+		
+		while(true) {
+			if(checkY - 1 > 0 && map[checkX][checkY - 1] == 1 && checkY + 1 < map.length && map[checkX][checkY + 1] == 1) {
+				if(checkY - 2 < 0 || map[checkX][checkY - 2] == 2 || checkY + 2 > map.length || map[checkX][checkY + 2] == 2) {
+					break;
+				}
+				
+				else {
+					checkNum++;
+					break;
+				}
+			}	
+			
+			else break;
+		}
+		
+		while(true) {
+			if(checkY - 1 > 0 && checkX - 1 > 0 && map[checkX - 1][checkY - 1] == 1 && checkY + 1 < map.length && checkX + 1 < map.length && map[checkX + 1][checkY + 1] == 1) {
+				if(checkY - 2 < 0 || checkY - 2 < 0 || map[checkX - 2][checkY - 2] == 2 || checkY + 2 > map.length || checkX + 2 > map.length || map[checkX + 2][checkY + 2] == 2) {
+					break;
+				}
+				
+				else {
+					checkNum++;
+					break;
+				}
+			}
+			
+			else break;
+		}
+		
+		while(true) {
+			if(checkY - 1 > 0 && checkX - 1 > 0 && map[checkX - 1][checkY + 1] == 1 && checkY + 1 < map.length && checkX + 1 < map.length && map[checkX + 1][checkY - 1] == 1) {
+				if(checkY - 2 < 0 || checkY - 2 < 0 || map[checkX - 2][checkY + 2] == 2 || checkY + 2 > map.length || checkX + 2 > map.length || map[checkX + 2][checkY - 2] == 2) {
+					break;
+				}
+				
+				else {
+					checkNum++;
+					break;
+				}
+			}
+			
+			else break;
+		}
+		
+		for(int i = xi; i <= xj; i++) {
+			if(i == xi) {
+				if(xi - 1 > 0 && map[xi - 1][checkY] != 0 && map[xi][checkY] == 1)
+					break;
+				if(xj + 1 < map.length && map[xj + 1][checkY] != 0 && map[xj][checkY] == 1)
+					break;
+			}
+			if (map[i][checkY] == 1)
+				count++;
+			else
+				count = 0;
+			if(count == 2) {
+				checkNum++;
+				break;
+			}
+		}
+		count = 0;
+		
+		for(int j = yi; j <= yj; j++) {
+			if(j == yi) {
+				if(yi - 1 > 0 && map[checkX][yi - 1] != 0 && map[checkX][yi] == 1)
+					break;
+				if(yj + 1 < map.length && map[checkX][yj + 1] != 0 && map[checkX][yj] == 1)
+					break;
+			}
+			if (map[checkX][j] == 1)
+				count++;
+			else
+				count = 0;
+			if(count == 2) {
+				checkNum++; 
+				break;
+			}
+		}
+		count = 0;
+		
+		for(int i = 0; i <= 4; i++) {
+			if(i == 0) {
+				if(xi - 1 > 0 && yi - 1 > 0 && map[xi - 1][yi - 1] != 0 && map[xi][yi] == 1)
+					break;
+				if(xj + 1 < map.length && yj + 1 < map.length && map[xj + 1][yj + 1] != 0 && map[xj][yj] == 1)
+					break;
+			}
+			
+			if (map[xi + i][yi + i] == 1)
+				count++;
+			else
+				count = 0;
+			if(count == 2) {
+				checkNum++;
+				break;
+			}
+			if(xi + i == xj || yi + i == yj)
+				break;
+		}
+		count = 0;
+		
+		for(int i = 0; i <= 4; i++) {
+			if(i == 0) {
+				if(xi - 1 > 0 && yi + 1 < map.length && map[xi - 1][yi + 1] != 0 && map[xi][yi] == 1)
+					break;
+				if(xj + 1 < map.length && yj - 1 > 0 && map[xj + 1][yj - 1] != 0 && map[xj][yj] == 1)
+					break;
+			}
+			
+			if (map[xi + i][yj - i] == 1)
+				count++;
+			else
+				count = 0;
+			if(count == 2) {
+				checkNum++;
+				break;
+			}
+			if(xi + i == xj || yj - i == yi)
+				break;
+		}
+		
+		if(checkNum >= 2)
+			return true;
+		else
+			return false;
 	}
 }

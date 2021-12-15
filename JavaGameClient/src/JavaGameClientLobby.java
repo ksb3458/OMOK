@@ -351,7 +351,7 @@ public class JavaGameClientLobby extends JFrame {
 						int stoneY = Integer.parseInt(args401[3]);
 						String answerY = "상대방이 무르기 요청을 수락하였습니다.";
 						if (args401[0].matches(UserName)) {
-							view.ShowBackAnswer(answerY);
+							view.ShowMessage(answerY, "무르기 요청");
 							view.map[stoneX][stoneY] = 0;
 							view.recordStone[num] = "0";
 						} else if (cm.UserName.matches(UserName)) {
@@ -369,7 +369,7 @@ public class JavaGameClientLobby extends JFrame {
 						}
 						String answerN = "상대방이 무르기 요청을 거부하였습니다.";
 						if (cm.data.matches(UserName)) {
-							view.ShowBackAnswer(answerN);
+							view.ShowMessage(answerN, "무르기 요청");
 						}
 						break;
 						
