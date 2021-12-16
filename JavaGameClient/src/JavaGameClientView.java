@@ -113,6 +113,8 @@ public class JavaGameClientView extends JFrame {
 	 * @throws BadLocationException 
 	 */
 	public JavaGameClientView(String username, String roomName, JavaGameClientLobby lobby)  {
+		playGame();
+		
 		gameLobby = lobby;
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -240,8 +242,6 @@ public class JavaGameClientView extends JFrame {
 		timerLabel.setBackground(Color.WHITE);
 		timerLabel.setBounds(581, 26, 144, 60);
 		contentPane.add(timerLabel);
-		
-		playGame();
 
 		try {
 			TextSendAction action = new TextSendAction();
@@ -331,7 +331,7 @@ public class JavaGameClientView extends JFrame {
 			}
 		}
 		int num = 0;
-		if (!"0".equals(recordStone[0])) {
+		if (!recordStone[0].equals("0")) {
 			for (int i = 0; i < recordStone.length; i++) {
 				if (recordStone[i].equals("0")) {
 					num = i - 1;
