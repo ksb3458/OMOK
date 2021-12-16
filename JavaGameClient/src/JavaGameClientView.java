@@ -331,13 +331,14 @@ public class JavaGameClientView extends JFrame {
 			}
 		}
 		int num = 0;
-		if (!recordStone[0].equals("0")) {
+		if (!"0".equals(recordStone[0])) {
 			for (int i = 0; i < recordStone.length; i++) {
 				if (recordStone[i].equals("0")) {
 					num = i - 1;
 					break;
 				}
 			}
+			if(num < 0) num = 0;
 			String info[] = recordStone[num].split(" ");
 			lastLabel.setVisible(true);
 			lastLabel.setLocation(Integer.parseInt(info[0]) * 30 + 4, Integer.parseInt(info[1]) * 30 + 4);
