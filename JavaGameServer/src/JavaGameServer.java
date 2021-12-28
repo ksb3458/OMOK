@@ -279,9 +279,9 @@ public class JavaGameServer extends JFrame {
 		}
 
 		// 귓속말 전송
-		public void WritePrivate(String msg) {
+		public void WritePrivate(String name, String msg) {
 			try {
-				ChatMsg obcm = new ChatMsg("귓속말", "300", msg);
+				ChatMsg obcm = new ChatMsg(name, "300", msg);
 				oos.writeObject(obcm);
 			} catch (IOException e) {
 				AppendText("dos.writeObject() error");
@@ -407,8 +407,27 @@ public class JavaGameServer extends JFrame {
 						for (int i = 0; i < user_vc.size(); i++) {
 							UserService user = (UserService) user_vc.elementAt(i);
 							if (user.UserName.matches(opPlayer)) {
-								user.WritePrivate(cm.data + "\n");
-								break;
+								user.WritePrivate(cm.UserName, cm.data + "\n");
+							}
+							
+							else if (user.UserName.matches(UserName)) {
+								user.WritePrivate(cm.UserName, cm.data + "\n");
+							}
+						}
+					}
+					
+					else if (cm.code.matches("301")) {
+						msg = String.format("[%s] %s", cm.UserName, cm.data);
+						AppendText(msg); // server 화면에 출력
+						
+						for (int i = 0; i < user_vc.size(); i++) {
+							UserService user = (UserService) user_vc.elementAt(i);
+							if (user.UserName.matches(opPlayer)) {
+								user.WriteOneObject(obcm);
+							}
+							
+							else if (user.UserName.matches(UserName)) {
+								user.WriteOneObject(obcm);
 							}
 						}
 					}

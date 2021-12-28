@@ -291,8 +291,9 @@ public class JavaGameClientLobby extends JFrame {
 								break;
 							}
 						}
-						if (cm.UserName.equals(UserName))
+						if (cm.UserName.equals(UserName)) 
 							view.AppendTextR("[" + cm.UserName + "]");
+						
 						// AppendTextR(" ");
 						else
 							view.AppendText("[" + cm.UserName + "]");
